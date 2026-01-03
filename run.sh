@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-cd ~/SSH/SystemTest/Experiment08
+cd ~/SSH/TabPFN_SSL
 
 # optional: nur nötig, wenn du die Dateien wirklich direkt ausführst (./file)
 chmod +x train_seeds_multinode.slurm || true

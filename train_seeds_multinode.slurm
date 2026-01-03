@@ -24,10 +24,10 @@ export HUGGINGFACE_HUB_TOKEN="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"
 ############################
 # Konfiguration des Experiments
 ############################
-EXP_DIR=/dss/dsshome1/03/di35lox/SSH/SystemTest/Experiment08
+EXP_DIR=/dss/dsshome1/03/di35lox/SSH/TabPFN_SSL
 IMG=/dss/dsshome1/03/di35lox/containers/nvidia+pytorch+23.10-py3.sqsh
 
-NUM_SEEDS=100
+NUM_SEEDS=5
 BASE_SEED=0
 
 # EXP_NUM wird von run.sh/sbatch gesetzt: --export=ALL,EXP_NUM=...
