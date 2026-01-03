@@ -1,0 +1,16 @@
+# Slurm outputs
+logs/
+error/
+results/
+Results/
+*.out
+*.err
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Secrets / tokens
+.env

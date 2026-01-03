@@ -1,0 +1,61 @@
+import data as ds
+import functions as fun
+import classifier as cl
+import decision as dec
+
+
+DATASETS = [
+    ds.Spirals()
+]
+
+CLASSIFIERS = [
+    cl.TabPfnClassifier(),
+    cl.NaiveBayesClassifier(),
+    cl.MultinomialLogitClassifier(),
+    cl.SmallNNClassifier(),
+    cl.SVMClassifier(),
+    cl.RandomForestCls(),
+    cl.GradientBoostingCls(),
+    cl.DecisionTreeCls(),
+    cl.KNNClassifier(),
+]
+
+DECISIONS = [
+    dec.SSL_prob,
+    dec.maximalPPP,
+    dec.SSL_confidence,
+]
+
+UNLABLED = [
+    20,
+    60,
+    100
+]
+
+LABLED = [
+    5,
+    10,
+    20
+]
+
+Experiments = [
+    {
+        "n": n,
+        "m": m,
+        "Data": data_obj,
+        "Sampler": fun.upsample,
+        "Evaluation": fun.confusion,
+        "Classifier": clf_obj,
+        "Decision": decision_fn,
+        "Predict": fun.predictor,
+    }
+    for n in LABLED
+    for m in UNLABLED
+    for data_obj in DATASETS
+    for clf_obj in CLASSIFIERS
+    for decision_fn in DECISIONS
+    
+]
+
+print("Anzahl Experimente:", len(Experiments))
+
