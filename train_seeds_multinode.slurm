@@ -19,7 +19,15 @@
 set -euo pipefail
 
 # >>> HIER deinen Token einfügen (den aus deinem Projekt):
-export HUGGINGFACE_HUB_TOKEN="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"
+# Load secrets (not tracked by git)
+source ~/.secrets/hf.env
+
+# Fail fast if token missing
+if [ -z "$HUGGINGFACE_HUB_TOKEN" ]; then
+  echo "ERROR: HUGGINGFACE_HUB_TOKEN is not set. Create ~/.secrets/hf.env"
+  exit 1
+fi
+
 
 ############################
 # Konfiguration des Experiments
