@@ -10,7 +10,7 @@ chmod +x decision.py classifier.py data.py experiments.py functions.py model_run
 echo "Starting jobs..."
 
 # >>> HIER deine Experiment-Nummern eintragen:
-EXP_LIST=(14)
+EXP_LIST=(13)
 
 # optional: Partition oder andere sbatch-Optionen global setzen:
 # SBATCH_EXTRA=(--partition=gpu --time=02:00:00)
