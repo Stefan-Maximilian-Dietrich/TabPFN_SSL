@@ -10,10 +10,10 @@ from sklearn.metrics import accuracy_score, roc_auc_score
 from tabpfn import TabPFNClassifier
 from tabpfn.constants import ModelVersion
 
-import data 
+import modules.data as data 
 import functions 
-import decision 
-import experiments
+import modules.decision as decision 
+import tasks.experiments as experiments
 
 def run_one_seed(seed: int, jobid: str, rank: int, results_dir: str, experiment_nr: int):
     """

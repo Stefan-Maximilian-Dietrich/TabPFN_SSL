@@ -1,7 +1,7 @@
-import data as ds
+import modules.data as ds
 import functions as fun
-import classifier as cl
-import decision as dec
+import modules.classifier as cl
+import modules.decision as dec
 
 
 DATASETS = [

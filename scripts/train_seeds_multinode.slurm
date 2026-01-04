@@ -35,11 +35,11 @@ fi
 EXP_DIR=/dss/dsshome1/03/di35lox/SSH/TabPFN_SSL
 IMG=/dss/dsshome1/03/di35lox/containers/nvidia+pytorch+23.10-py3.sqsh
 
-NUM_SEEDS=5
-BASE_SEED=0
-
-# EXP_NUM wird von run.sh/sbatch gesetzt: --export=ALL,EXP_NUM=...
+NUM_SEEDS="${NUM_SEEDS:-5}"
+BASE_SEED="${BASE_SEED:-0}"
 EXP_NUM="${EXP_NUM:-0}"
+TASK_FILE="${TASK_FILE:-tasks/experiments.py}"
+
 
 cd "$EXP_DIR"
 
@@ -101,9 +101,10 @@ srun -N"$SLURM_NNODES" \
     --rdzv_backend=c10d \
     --rdzv_endpoint="$MASTER_ADDR:$MASTER_PORT" \
     /workspace/model_runner.py \
-      --num-seeds="$NUM_SEEDS" \
-      --base-seed="$BASE_SEED" \
-      --exp-num="$EXP_NUM"
+        --task="$TASK_FILE" \
+        --num-seeds="$NUM_SEEDS" \
+        --base-seed="$BASE_SEED" \
+        --exp-num="$EXP_NUM"
 
 ############################
 # Laufzeit ausgeben + Zusammenfassung

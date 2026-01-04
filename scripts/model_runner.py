@@ -5,9 +5,23 @@ import argparse
 import torch
 from model_train import run_one_seed
 
+import importlib.util
+from pathlib import Path
+
+def load_task_module(task_path: str):
+    repo_root = Path(__file__).resolve().parent
+    full_path = (repo_root / task_path).resolve()
+    spec = importlib.util.spec_from_file_location("task_module", str(full_path))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)  # type: ignore
+    return module
 
 def main():
+    
     parser = argparse.ArgumentParser()
+    parser.add_argument("--task", type=str, default="tasks/experiments.py",
+                    help="Pfad zum Task-Sheet unterhalb des Repo-Roots (z.B. tasks/experiments.py)")
+
     parser.add_argument("--num-seeds", type=int, required=True)
     parser.add_argument("--base-seed", type=int, default=0)
     parser.add_argument("--exp-num", type=int, default=0)
