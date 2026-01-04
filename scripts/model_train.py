@@ -1,3 +1,8 @@
+import sys
+sys.path.insert(0, "/workspace")
+
+print("################# Test ###############")
+
 import os
 import csv
 import time
@@ -11,7 +16,7 @@ from tabpfn import TabPFNClassifier
 from tabpfn.constants import ModelVersion
 
 import modules.data as data 
-import functions 
+import scripts.functions  as functions
 import modules.decision as decision 
 import tasks.experiments as experiments
 

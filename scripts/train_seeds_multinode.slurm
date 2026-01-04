@@ -28,6 +28,7 @@ if [ -z "$HUGGINGFACE_HUB_TOKEN" ]; then
   exit 1
 fi
 
+#export PYTHONPATH=/workspace:$PYTHONPATH
 
 ############################
 # Konfiguration des Experiments
@@ -100,7 +101,7 @@ srun -N"$SLURM_NNODES" \
     --rdzv_id="$SLURM_JOB_ID" \
     --rdzv_backend=c10d \
     --rdzv_endpoint="$MASTER_ADDR:$MASTER_PORT" \
-    /workspace/model_runner.py \
+    /workspace/scripts/model_runner.py \
         --task="$TASK_FILE" \
         --num-seeds="$NUM_SEEDS" \
         --base-seed="$BASE_SEED" \

@@ -8,8 +8,8 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent
 TASKS_DIR = REPO / "tasks"
-MODEL_RUNNER = REPO / "model_runner.py"
-SLURM_SCRIPT = REPO / "train_seeds_multinode.slurm"  # bei dir im Repo-Root
+MODEL_RUNNER = REPO / "scripts/model_runner.py"
+SLURM_SCRIPT = REPO / "scripts/train_seeds_multinode.slurm"  # bei dir im Repo-Root
 
 def have_cmd(cmd):
     from shutil import which
