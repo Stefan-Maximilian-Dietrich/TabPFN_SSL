@@ -1,42 +1,34 @@
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]  # TabPFN_SSL/
-sys.path.insert(0, str(ROOT))               # remember: root zuerst
-print("################# Test ###############")
+ROOT = Path(__file__).resolve().parents[1] 
+sys.path.insert(0, str(ROOT))               
 
 import os
-import csv
-import time
 import numpy as np
 
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, roc_auc_score
 
-from tabpfn import TabPFNClassifier
-from tabpfn.constants import ModelVersion
-
-import modules.data as data 
 import scripts.functions  as functions
-import modules.decision as decision 
-import tasks.experiments as experiments
 
-def run_one_seed(seed: int, jobid: str, rank: int, results_dir: str, experiment_nr: int):
-    """
-    Führt einen TabPFN-Lauf für einen Seed aus und speichert Accuracy & AUC als CSV.
+import importlib
 
-    seed       : random_state für train_test_split
-    jobid      : Slurm-Job-ID (nur für Logging)
-    rank       : globaler Rank (0..WORLD_SIZE-1)
-    results_dir: Zielordner für CSV
-    """
 
+
+def run_one_seed(task_path: str, seed: int, jobid: str, rank: int, results_dir: str, experiment_nr: int):
     os.makedirs(results_dir, exist_ok=True)
 
+    module_name = task_path.replace("/", ".").replace(".py", "")
+
+    task_module = importlib.import_module(module_name)
+
+    # Zugriff auf Funktionen
+    exp = getattr(task_module, "Experiments")
 
     # 6) Ergebnisse als CSV speichern
-    exp = experiments.Experiments[experiment_nr]
+    exp = task_module.Experiments[experiment_nr]
     n = exp["n"]    
     m = exp["m"]
     Data = exp["Data"]

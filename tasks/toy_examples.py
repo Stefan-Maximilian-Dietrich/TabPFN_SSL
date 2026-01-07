@@ -3,7 +3,7 @@ import scripts.functions as fun
 import modules.classifier as cl
 import modules.decision as dec
 
-
+print("Toy Examples")
 DATASETS = [
     ds.Spirals()
 ]

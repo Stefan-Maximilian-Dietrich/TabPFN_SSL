@@ -137,7 +137,7 @@ def main():
         default_index=0
     )
     task_file = TASKS_DIR / task_choice
-
+    print(task_file)
     # Experimente wählen
     exp_nums = ask_exp_list()
 

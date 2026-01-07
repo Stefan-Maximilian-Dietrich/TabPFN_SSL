@@ -3,6 +3,7 @@ import scripts.functions as fun
 import modules.classifier as cl
 import modules.decision as dec
 
+print("Experiments")
 
 DATASETS = [
     ds.Spirals()

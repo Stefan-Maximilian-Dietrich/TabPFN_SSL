@@ -46,7 +46,7 @@ def main():
         f"RANK={rank} | LOCAL_RANK={local_rank} | Device={device}"
     )
     print(f"RESULTS_DIR = {results_dir}")
-
+    task_path = args.task
     experiment_nr = args.exp_num
     total_seeds = args.num_seeds
     seeds_per_rank = math.ceil(total_seeds / world_size)
@@ -60,7 +60,7 @@ def main():
     for seed_index in range(start_index, end_index):
         seed_id = args.base_seed + seed_index
         print(f"\n=== Rank {rank}: starte Seed {seed_id} ===")
-        run_one_seed(seed_id, jobid, rank, results_dir, experiment_nr)
+        run_one_seed(task_path, seed_id, jobid, rank, results_dir, experiment_nr)
 
 if __name__ == "__main__":
     main()
