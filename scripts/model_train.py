@@ -1,6 +1,8 @@
 import sys
-sys.path.insert(0, "/workspace")
+from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[1]  # TabPFN_SSL/
+sys.path.insert(0, str(ROOT))               # remember: root zuerst
 print("################# Test ###############")
 
 import os
@@ -46,8 +48,10 @@ def run_one_seed(seed: int, jobid: str, rank: int, results_dir: str, experiment_
 
     np.random.seed(seed)
     ssl = functions.SSL( n, m, Data, Sampler, Evaluation, Classifier, Decision, Predict)
+    print("SSL gestartet")
     result = ssl.run(seed)
     result_sl = ssl.run_SL(seed)
+    print("Ende")
 
     #Gener Path
     experiment_dir_1lv = os.path.join(results_dir, f"{Data.name}_{n}")

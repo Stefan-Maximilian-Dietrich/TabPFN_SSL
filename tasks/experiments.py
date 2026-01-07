@@ -1,5 +1,5 @@
 import modules.data as ds
-import functions as fun
+import scripts.functions as fun
 import modules.classifier as cl
 import modules.decision as dec
 

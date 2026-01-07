@@ -6,6 +6,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+from dotenv import load_dotenv
+load_dotenv()
+
 REPO = Path(__file__).resolve().parent
 TASKS_DIR = REPO / "tasks"
 MODEL_RUNNER = REPO / "scripts/model_runner.py"

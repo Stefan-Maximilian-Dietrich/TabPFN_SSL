@@ -89,7 +89,6 @@ class SSL:
         result.append(self.evaluation(labeled, test))
         for _ in range(len(unlabeled)):
             result.append(self.evaluation(labeled, test))
-            print(result)
         return result
         
     def run(self, seed):

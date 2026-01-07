@@ -17,7 +17,6 @@ def load_task_module(task_path: str):
     return module
 
 def main():
-    
     parser = argparse.ArgumentParser()
     parser.add_argument("--task", type=str, default="tasks/experiments.py",
                     help="Pfad zum Task-Sheet unterhalb des Repo-Roots (z.B. tasks/experiments.py)")
