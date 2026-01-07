@@ -9,7 +9,6 @@ suppressPackageStartupMessages({
 
 args <- commandArgs(trailingOnly = TRUE)
 
-# Erwartet:
 # 1 action: "tables" | "long" | "plots" | "all"
 # 2 base_path
 # 3 metric: "accuracy" | "f1"
@@ -26,12 +25,17 @@ metric    <- args[3]
 out_dir   <- args[4]
 show_sd   <- if (length(args) >= 5) as.logical(as.integer(args[5])) else FALSE
 
-# Source Funktionen direkt aus evaluation/
-source(file.path(dirname(normalizePath(sys.frame(1)$ofile)), "confusion_metrics_functions.R"))
+this_dir <- dirname(normalizePath(sys.frame(1)$ofile))
+source(file.path(this_dir, "confusion_metrics_functions.R"))
 
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
 write_tables <- function(tables, out_dir) {
+  if (!length(tables)) {
+    fwrite(data.table(), file.path(out_dir, "tables_index.csv"))
+    return(invisible(NULL))
+  }
+
   index_dt <- rbindlist(lapply(seq_along(tables), function(i) {
     dt <- tables[[i]]
     data.table(
@@ -49,6 +53,8 @@ write_tables <- function(tables, out_dir) {
   for (i in seq_along(tables)) {
     fwrite(tables[[i]], file.path(out_dir, sprintf("table_%04d.csv", i)))
   }
+
+  invisible(NULL)
 }
 
 if (action %in% c("tables", "all")) {

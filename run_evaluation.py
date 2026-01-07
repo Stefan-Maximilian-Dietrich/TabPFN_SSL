@@ -1,5 +1,6 @@
 from __future__ import annotations
 import subprocess
+import shutil
 from pathlib import Path
 from datetime import datetime
 
@@ -46,12 +47,23 @@ def pick_results_path() -> Path:
 
 
 def run_r(action: str, base_path: Path, metric: str, show_sd: bool) -> Path:
+    # Rscript muss im PATH sein (über micromamba activate r_eval)
+    rscript = shutil.which("Rscript")
+    if not rscript:
+        raise RuntimeError(
+            "Rscript nicht gefunden.\n"
+            "Du musst zuerst die R-Umgebung aktivieren:\n"
+            "  source ~/.bashrc\n"
+            "  micromamba activate r_eval\n"
+            "  which Rscript\n"
+        )
+
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     out_dir = OUT_ROOT / f"{ts}_{action}_{metric}"
     out_dir.mkdir(parents=True, exist_ok=True)
 
     cmd = [
-        "Rscript",
+        rscript,
         str(R_WRAPPER),
         action,
         str(base_path),
