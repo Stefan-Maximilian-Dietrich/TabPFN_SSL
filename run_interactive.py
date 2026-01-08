@@ -102,7 +102,14 @@ def submit_lrz(task_file: Path, exp_nums: list[int], num_seeds: int, base_seed: 
 
     print("\n[LRZ] Status:")
     try:
-        subprocess.run(["squeue", "-u", os.getenv("USER", "")], check=False)
+        subprocess.run(
+            [
+                "squeue",
+                "-u", os.getenv("USER", ""),
+                "-o", "%.18i %.12P %.40j %.8u %.2t %.10M %.6D %R"
+            ],
+            check=False
+        )
     except FileNotFoundError:
         print("squeue nicht gefunden (seltsam auf LRZ).")
 
