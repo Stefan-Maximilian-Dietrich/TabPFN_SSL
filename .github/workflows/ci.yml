@@ -29,15 +29,13 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
-          python -m pip install pytest ruff
+          python -m pip install pytest pytest-cov ruff
 
       - name: Lint
         run: |
           ruff check .
 
       - name: Verify HF token is available (fail if missing)
-        # Secrets are not reliably available on pull_request (especially from forks).
-        # We only require the token on push runs.
         if: github.event_name == 'push'
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
@@ -55,9 +53,16 @@ jobs:
         env:
           RESULTS_DIR: results_ci
           PYTHONPATH: ${{ github.workspace }}
-          # Enable slow TabPFN fit test only on push (token available).
           RUN_SLOW: ${{ github.event_name == 'push' && '1' || '0' }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HUGGINGFACE_HUB_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          pytest -v
+          pytest -v --cov=modules --cov=scripts --cov-branch --cov-report=xml --cov-report=term-missing
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          fail_ci_if_error: true
+          verbose: true
