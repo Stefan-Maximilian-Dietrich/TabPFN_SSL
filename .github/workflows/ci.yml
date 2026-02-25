@@ -7,8 +7,7 @@ on:
     branches: ["dev", "main"]
 
 jobs:
-  fast-tests:
-    name: Fast tests (no gated downloads)
+  local-tests:
     runs-on: ubuntu-latest
 
     strategy:
@@ -36,42 +35,10 @@ jobs:
         run: |
           ruff check .
 
-      - name: Run fast tests
-        env:
-          RESULTS_DIR: results_ci
-          PYTHONPATH: ${{ github.workspace }}
-        run: |
-          pytest -v
-
-  slow-tabpfn:
-    name: Slow TabPFN fit test (requires HF token)
-    runs-on: ubuntu-latest
-
-    # IMPORTANT: run only on push (secrets are available). Not on pull_request.
-    if: github.event_name == 'push'
-
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.10"]  # keep slow test on one version to save time
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: "pip"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
-          python -m pip install pytest
-
       - name: Verify HF token is available (fail if missing)
+        # Secrets are not reliably available on pull_request (especially from forks).
+        # We only require the token on push runs.
+        if: github.event_name == 'push'
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
@@ -79,16 +46,18 @@ jobs:
           import os, sys
           tok = os.getenv("HF_TOKEN", "")
           if not tok:
-              print("ERROR: HF_TOKEN secret is missing in this workflow run.")
+              print("ERROR: HF_TOKEN secret is missing. Add it in: Repo Settings → Secrets and variables → Actions.")
               sys.exit(1)
           print("HF_TOKEN is present (value not shown).")
           PY
 
-      - name: Run slow TabPFN fit test
+      - name: Run tests (fast tests on PRs, slow tests on push)
         env:
+          RESULTS_DIR: results_ci
           PYTHONPATH: ${{ github.workspace }}
-          RUN_SLOW: "1"
+          # Enable slow TabPFN fit test only on push (token available).
+          RUN_SLOW: ${{ github.event_name == 'push' && '1' || '0' }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HUGGINGFACE_HUB_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          pytest -v tests/test_tabpfn_fit_slow.py
+          pytest -v
