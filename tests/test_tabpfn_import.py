@@ -7,7 +7,7 @@ def test_tabpfn_import_and_instantiation():
     """
 
     try:
-        from tabpfn import DOES_NOT_EXIST
+        from tabpfn import TabPFNClassifier
     except Exception as e:
         pytest.fail(f"TabPFN import failed: {e}")
 
