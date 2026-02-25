@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: ["dev", "main"]
+  pull_request:
+    branches: ["dev", "main"]
+
+jobs:
+  local-tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install minimal dependencies for local tests
+        run: |
+          python -m pip install --upgrade pip
+          # Minimal: reicht für modules.data + scripts.functions + smoke task
+          python -m pip install numpy pandas scikit-learn
+          python -m pip install pytest ruff
+
+      - name: Lint (ruff)
+        run: |
+          ruff check .
+
+      - name: Run tests
+        env:
+          # sorgt dafür, dass smoke_local nicht in Repo-Ordner schreibt
+          RESULTS_DIR: results_ci
+        run: |
+          pytest -q

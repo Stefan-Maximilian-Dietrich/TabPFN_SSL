@@ -1,19 +1,14 @@
 import sys
 from pathlib import Path
+import os
+import numpy as np
+import scripts.functions  as functions
+import importlib
 
 ROOT = Path(__file__).resolve().parents[1] 
 sys.path.insert(0, str(ROOT))               
 
-import os
-import numpy as np
 
-from sklearn.datasets import load_breast_cancer
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, roc_auc_score
-
-import scripts.functions  as functions
-
-import importlib
 
 
 
@@ -60,7 +55,7 @@ def run_one_seed(task_path: str, seed: int, jobid: str, rank: int, results_dir: 
     functions.save_confusion_matrices_long(result=result, csv_path=csv_path, jobid=jobid, rank=rank, seed=seed,)
 
     #SL Method Path 
-    decision_dir_sl = os.path.join(classifyer_dir, f"decision_supervised")
+    decision_dir_sl = os.path.join(classifyer_dir, "decision_supervised")
     os.makedirs(decision_dir_sl, exist_ok=True)
     csv_path_sl = os.path.join(decision_dir_sl, f"ID_{seed}.csv")
     functions.save_confusion_matrices_long(result=result_sl, csv_path=csv_path_sl, jobid=jobid, rank=rank, seed=seed)

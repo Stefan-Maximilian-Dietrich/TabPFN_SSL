@@ -1,210 +1,206 @@
-# Bayesian Pseudo-Label Selection with Prior-Data Fitted Networks (PFN-PLS)
+# Bayesian Pseudo-Label Selection with Prior-Data Fitted Networks
 
-This repository contains the **project proposal and ongoing research framework** for a novel semi-supervised learning (SSL) method that combines **Bayesian Pseudo-Label Selection (PLS)** with **Prior-Data Fitted Networks (PFNs)**, in particular **TabPFN**.
+**Project proposal & research repository**
 
-The goal is to develop a **decision-theoretically grounded, uncertainty-aware pseudo-label selection strategy** that scales beyond classical Bayesian models while remaining computationally feasible for modern tabular datasets.
+Author: **Stefan Maximilian Dietrich**
+Date: **October 2025**
 
 ---
 
 ## 📌 Table of Contents
 
-* [Motivation](#motivation)
-* [Core Idea](#core-idea)
-* [Method Overview](#method-overview)
-* [Algorithm](#algorithm)
-* [Implementation](#implementation)
+* [Bayesian PLS in Semi-Supervised Learning](#bayesian-pls-in-semi-supervised-learning)
+* [Prior-Data Fitted Networks (PFN)](#prior-data-fitted-networks-pfn)
+* [Semi-Supervised Learning with PFNs](#semi-supervised-learning-with-pfns)
+* [Related Work](#related-work)
+* [Algorithmic Framework](#algorithmic-framework)
+* [Test Settings](#test-settings)
 * [Results](#results)
-
-  * [Semi-Synthetic Datasets](#semi-synthetic-datasets)
-  * [Benchmark Comparisons](#benchmark-comparisons)
-* [Planned Experiments](#planned-experiments)
-* [Repository Status](#repository-status)
-* [Disclaimer on LLM Use](#disclaimer-on-the-use-of-llms)
-* [Author](#author)
-* [References](#references)
+* [Disclaimer on the Use of LLMs](#disclaimer-on-the-use-of-llms)
 
 ---
 
-## Motivation
+## Bayesian PLS in Semi-Supervised Learning
 
-Obtaining labeled data is often expensive, time-consuming, and dependent on expert knowledge, whereas unlabeled data are typically abundant. This imbalance has led to the widespread adoption of **semi-supervised learning**, particularly **self-training / pseudo-labeling** approaches.
+Obtaining labeled data is often costly, time-consuming, and dependent on expert knowledge, whereas unlabeled data are typically abundant and easy to collect. This imbalance has led to the rise of **semi-supervised learning (SSL)**, with **self-training (or pseudo-labeling)** being one of the most widely used approaches.
 
-A key challenge in self-training is **confirmation bias**: once incorrect pseudo-labels are added to the training set, errors tend to reinforce themselves. Many existing pseudo-label selection strategies rely on ad-hoc criteria such as prediction confidence or entropy, which are often overconfident and strongly dependent on a single fitted model.
+Self-training iteratively adds pseudo-labeled instances to the training set based on predictions from a model trained on labeled data. A crucial step in this process is **pseudo-label selection (PLS)**, which determines which pseudo-labeled instances to include.
+Importantly, *PLS refers to the selection of pseudo-labeled instances, not the pseudo-labels themselves.*
 
-This project addresses this issue by leveraging **Bayesian decision theory** and **posterior predictive uncertainty**.
+To mitigate overfitting and the reinforcement of incorrect pseudo-labels (confirmation bias), selection strategies should be less dependent on the current model and more informed by the structure and uncertainty inherent in the labeled dataset.
+
+A Bayesian framework designed to reduce model dependency and improve robustness in the pseudo-label selection process was proposed in prior work and has since shown promising results and extensions.
 
 ---
 
-## Core Idea
+### Pseudo Posterior Predictive (PPP)
 
-Instead of evaluating a pseudo-labeled sample ((x_i, \hat y_i)) under a single parameter estimate, we evaluate it under the **entire posterior distribution** using the **Pseudo Posterior Predictive (PPP)** criterion:
+The key idea is to avoid evaluating the likelihood of a pseudo-labeled instance
+((x_i, \hat{y}_i)) under a single estimated parameter vector (\hat{\theta}), which can be prone to overfitting.
+
+Instead, the **Pseudo Posterior Predictive (PPP)** criterion marginalizes over the *entire posterior distribution* of the model parameters (\theta):
 
 [
-p(D \cup (x_i, \hat y_i) \mid D)
+p(D \cup (x_i, \hat{y}*i) \mid D)
+= \int*\Theta p(D \cup (x_i, \hat{y}_i) \mid \theta), p(\theta \mid D), d\theta,
 ]
 
-Under mild assumptions, this simplifies to:
+where (D) is the labeled dataset and (p(\theta \mid D)) is the posterior over parameters.
+
+Intuitively, the PPP evaluates how well a candidate pseudo-labeled instance fits not just a single model but a distribution over plausible models.
+
+This approach is both empirically motivated and theoretically grounded in **Bayesian decision theory**. Selecting the pseudo-labeled instance that maximizes the PPP corresponds to choosing the Bayes-optimal action under a utility function reflecting model fit.
+
+---
+
+### Scalability Limitations of Classical Bayesian Methods
+
+While PPP-based methods can be approximated or computed directly for simple models, they do not scale to complex deep learning architectures. In high-dimensional parameter spaces, the required integrals become analytically and numerically intractable.
+
+This motivates the use of **Prior-Data Fitted Networks (PFNs)**.
+
+---
+
+## Prior-Data Fitted Networks (PFN)
+
+Prior-Data Fitted Networks (PFNs) approximate Bayesian inference by directly learning the **posterior predictive distribution (PPD)** of a given prior.
+
+Formally, the PPD integrates over all possible hypotheses (\varphi):
 
 [
-p(D \cup (x_i, \hat y_i) \mid D) = p(\hat y_i \mid x_i, D)
+p(y \mid x, D) \propto
+\int_\Phi p(y \mid x, \varphi), p(D \mid \varphi), p(\varphi), d\varphi.
 ]
 
-This allows pseudo-label selection to be based directly on the **posterior predictive distribution (PPD)**.
+Instead of computing this integral explicitly (e.g. via MCMC), a transformer
+(q_\theta(y \mid x, D)) is trained offline on synthetically generated datasets sampled from a known prior.
 
-### Key Insight
+The PFN is optimized using:
 
-**Prior-Data Fitted Networks (PFNs)**, and specifically **TabPFN**, approximate the Bayesian posterior predictive distribution in a single forward pass.
-Therefore, TabPFN can be used to efficiently approximate the PPP and select pseudo-labels in a **Bayes-optimal** manner.
+[
+\mathcal{L}*{\mathrm{PFN}} =
+\mathbb{E}*{{(x_{\text{test}}, y_{\text{test}})} \cup D_{\text{train}}}
+\left[
 
----
+* \log q_\theta(y_{\text{test}} \mid x_{\text{test}}, D_{\text{train}})
+  \right].
+  ]
 
-## Method Overview
-
-At each self-training iteration:
-
-1. Train a classifier on the current labeled dataset.
-2. Predict pseudo-labels for all unlabeled samples.
-3. Compute the **PPP score** for each pseudo-labeled sample using TabPFN.
-4. Select the sample with the highest PPP score.
-5. Add the selected sample to the labeled set.
-6. Repeat until a stopping criterion is met.
-
-This approach is:
-
-* **Model-agnostic**
-* **Uncertainty-aware**
-* **Grounded in Bayesian decision theory**
-* **Computationally efficient**
+As a result, PFNs perform Bayesian inference **in a single forward pass**, without parameter updates at inference time.
 
 ---
 
-## Algorithm
+### TabPFN
+
+**TabPFN** is a PFN specialized for small tabular classification problems. It is trained on synthetic datasets generated from a prior combining Bayesian neural networks and structural causal models.
+
+TabPFN:
+
+* Performs in-context learning,
+* Requires no hyperparameter tuning,
+* Produces predictions in under a second,
+* Achieves state-of-the-art performance on small tabular datasets.
+
+This makes TabPFN a suitable tool for approximating the PPP.
+
+---
+
+## Semi-Supervised Learning with PFNs
+
+A key theoretical result shows that:
+
+[
+p(D \cup (x_i, \hat{y}_i) \mid D)
+= p(\hat{y}_i \mid x_i, D).
+]
+
+Thus, selection based on the posterior predictive distribution computed via TabPFN corresponds to the **Bayes-optimal action**.
+
+This removes the need to explicitly specify a prior distribution and yields a **model-agnostic**, scalable pseudo-label selection strategy.
+
+An interesting extension would involve defining multi-objective utility functions over multiple PFNs.
+
+---
+
+## Related Work
+
+* Laplace-based Bayesian PLS methods rely on restrictive assumptions such as unimodality and low dimensionality.
+* MCMC-based approaches are theoretically robust but computationally infeasible in SSL settings.
+* Exact PPP computation is possible for conjugate models but limited in scope.
+* Uncertainty-based pseudo-labeling methods often collapse uncertainty into a single metric.
+* Existing TabPFN-based SSL approaches focus on ERM, whereas this work embeds TabPFN into a **decision-theoretic self-training loop** with iterative PPP recomputation.
+
+---
+
+## Algorithmic Framework
+
+**Pseudo-Label Selection with PFN**
 
 ```
 Input:
-  D = labeled dataset
-  U = unlabeled dataset
+  Labeled data 𝓓
+  Unlabeled data 𝓤
 
 While stopping criterion not met:
-  1. Fit classifier on D
-  2. Predict pseudo-labels for U
-  3. Compute PPP(x_i, ŷ_i) via TabPFN
-  4. Select sample with maximal PPP
-  5. Move selected sample from U to D
+  Fit classifier on 𝓓
+  Predict pseudo-labels for all x ∈ 𝓤
+  Compute PPP(x, ŷ(x)) using TabPFN
+  Select a* = argmax PPP
+  Update:
+    𝓓 ← 𝓓 ∪ a*
+    𝓤 ← 𝓤 \ a*
 
 Output:
-  Final trained classifier
+  Final fitted classifier
 ```
 
 ---
 
-## Implementation
+## Test Settings
 
-The algorithm is designed to serve as a **generic framework**.
-Different variants can be instantiated by changing:
+The proposed algorithm serves as a foundation for multiple method variants differing in:
 
-* The base classifier,
-* The stopping criterion,
-* The utility function,
-* The PFN / TabPFN configuration.
+* model architecture,
+* stopping criteria.
 
-The repository will be extended with:
+Benchmarks include:
 
-* Modular experiment pipelines,
-* Reproducible benchmarks,
-* Automated result aggregation.
+* supervised learning,
+* SSL with ad-hoc selection strategies,
+* soft revision methods,
+* SLZ,
+* TabPFN-D.
+
+Experiments will be conducted on established tabular datasets under varying labeled/unlabeled ratios.
 
 ---
 
 ## Results
 
-This section illustrates **example result visualizations** in the style of comparable research repositories (e.g. *robust-pls*).
-The images below are **placeholders** and should be replaced by actual experimental results.
+⬇️ **Place results here**
 
-### Semi-Synthetic Datasets
+This section is intentionally left as a placeholder for:
 
-#### Banknote Dataset
+* static preview plots (PNG),
+* links to interactive plots hosted via GitHub Pages,
+* quantitative result tables.
 
-| Labeled Samples         | Visualization                             |
-| ----------------------- | ----------------------------------------- |
-| n = 160 (80% unlabeled) | ![Banknote 160](results/banknote_160.png) |
-| n = 120 (80% unlabeled) | ![Banknote 120](results/banknote_120.png) |
-| n = 80  (80% unlabeled) | ![Banknote 80](results/banknote_80.png)   |
+Example structure:
 
----
-
-### Benchmark Comparisons
-
-#### Mushrooms Dataset
-
-| Labeled Samples | Visualization                               |
-| --------------- | ------------------------------------------- |
-| n = 120         | ![Mushrooms 120](results/mushrooms_120.png) |
-| n = 160         | ![Mushrooms 160](results/mushrooms_160.png) |
-| n = 200         | ![Mushrooms 200](results/mushrooms_200.png) |
-
-#### Simulated Dataset
-
-| Labeled Samples | Visualization                          |
-| --------------- | -------------------------------------- |
-| n = 60          | ![Simulation 60](results/sim_60.png)   |
-| n = 100         | ![Simulation 100](results/sim_100.png) |
-| n = 200         | ![Simulation 200](results/sim_200.png) |
-
----
-
-## Planned Experiments
-
-The proposed approach will be benchmarked against:
-
-* Standard supervised learning
-* SSL with ad-hoc selection strategies (confidence, entropy, variance)
-* Soft Revision methods
-* SLZ framework
-* TabPFN-D
-
-Experiments will systematically vary:
-
-* Label ratios,
-* Dataset sizes,
-* Stopping criteria.
-
----
-
-## Repository Status
-
-🚧 **Research prototype / Work in progress**
-
-This repository currently serves as:
-
-* A research proposal,
-* A conceptual reference implementation,
-* A foundation for future experimental work.
+* `plots/…png` → shown below
+* `docs/…html` → interactive version
 
 ---
 
 ## Disclaimer on the Use of LLMs
 
-Large Language Models (LLMs) were used **only** for:
+The use of large language models (LLMs) in the preparation of this work is outlined below:
 
-* Language polishing,
-* Grammar and spelling checks.
-
-LLMs were **not** used for:
-
-* Developing the research idea,
-* Designing the methodology,
-* Formulating theoretical arguments.
+* Development of research idea and proposal: **No LLMs used**
+* Development of core content or substantive arguments: **No LLMs used**
+* Improvement of language and writing style: **LLM used**
+* Spelling and grammar checking: **LLM used**
 
 ---
 
-## Author
-
-**Stefan Maximilian Dietrich**
-October 2025
-
----
-
-## References
-
-See the accompanying bibliography (`bib.bib`) for full citations.
+*This repository represents an ongoing research project and will be extended with experimental results and code.*
