@@ -16,7 +16,7 @@ jobs:
         python-version: ["3.10", "3.11", "3.12"]
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -25,20 +25,20 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
 
-      - name: Install minimal dependencies for local tests
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          # Minimal: reicht für modules.data + scripts.functions + smoke task
+          # Minimal dependencies required for local smoke + unit tests
           python -m pip install numpy pandas scikit-learn
           python -m pip install pytest ruff
 
-      - name: Lint (ruff)
+      - name: Lint with ruff
         run: |
           ruff check .
 
       - name: Run tests
         env:
-          # sorgt dafür, dass smoke_local nicht in Repo-Ordner schreibt
           RESULTS_DIR: results_ci
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           pytest -q
