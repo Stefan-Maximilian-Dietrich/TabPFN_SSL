@@ -41,4 +41,4 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
           RUN_SLOW: "0" 
         run: |
-          pytest -v
+          pytest -vvs
