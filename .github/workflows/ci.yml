@@ -39,5 +39,6 @@ jobs:
         env:
           RESULTS_DIR: results_ci
           PYTHONPATH: ${{ github.workspace }}
+          RUN_SLOW: "1" 
         run: |
           pytest -v
