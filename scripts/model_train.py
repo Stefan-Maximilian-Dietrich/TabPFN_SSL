@@ -1,35 +1,29 @@
+import sys
+from pathlib import Path
 import os
-import csv
-import time
 import numpy as np
+import scripts.functions  as functions
+import importlib
 
-from sklearn.datasets import load_breast_cancer
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, roc_auc_score
+ROOT = Path(__file__).resolve().parents[1] 
+sys.path.insert(0, str(ROOT))               
 
-from tabpfn import TabPFNClassifier
-from tabpfn.constants import ModelVersion
 
-import data 
-import functions 
-import decision 
-import experiments
 
-def run_one_seed(seed: int, jobid: str, rank: int, results_dir: str, experiment_nr: int):
-    """
-    Führt einen TabPFN-Lauf für einen Seed aus und speichert Accuracy & AUC als CSV.
 
-    seed       : random_state für train_test_split
-    jobid      : Slurm-Job-ID (nur für Logging)
-    rank       : globaler Rank (0..WORLD_SIZE-1)
-    results_dir: Zielordner für CSV
-    """
 
+def run_one_seed(task_path: str, seed: int, jobid: str, rank: int, results_dir: str, experiment_nr: int):
     os.makedirs(results_dir, exist_ok=True)
 
+    module_name = task_path.replace("/", ".").replace(".py", "")
+
+    task_module = importlib.import_module(module_name)
+
+    # Zugriff auf Funktionen
+    exp = getattr(task_module, "Experiments")
 
     # 6) Ergebnisse als CSV speichern
-    exp = experiments.Experiments[experiment_nr]
+    exp = task_module.Experiments[experiment_nr]
     n = exp["n"]    
     m = exp["m"]
     Data = exp["Data"]
@@ -41,8 +35,10 @@ def run_one_seed(seed: int, jobid: str, rank: int, results_dir: str, experiment_
 
     np.random.seed(seed)
     ssl = functions.SSL( n, m, Data, Sampler, Evaluation, Classifier, Decision, Predict)
+    print("SSL gestartet")
     result = ssl.run(seed)
     result_sl = ssl.run_SL(seed)
+    print("Ende")
 
     #Gener Path
     experiment_dir_1lv = os.path.join(results_dir, f"{Data.name}_{n}")
@@ -59,7 +55,7 @@ def run_one_seed(seed: int, jobid: str, rank: int, results_dir: str, experiment_
     functions.save_confusion_matrices_long(result=result, csv_path=csv_path, jobid=jobid, rank=rank, seed=seed,)
 
     #SL Method Path 
-    decision_dir_sl = os.path.join(classifyer_dir, f"decision_supervised")
+    decision_dir_sl = os.path.join(classifyer_dir, "decision_supervised")
     os.makedirs(decision_dir_sl, exist_ok=True)
     csv_path_sl = os.path.join(decision_dir_sl, f"ID_{seed}.csv")
     functions.save_confusion_matrices_long(result=result_sl, csv_path=csv_path_sl, jobid=jobid, rank=rank, seed=seed)

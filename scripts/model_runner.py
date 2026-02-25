@@ -5,9 +5,22 @@ import argparse
 import torch
 from model_train import run_one_seed
 
+import importlib.util
+from pathlib import Path
+
+def load_task_module(task_path: str):
+    repo_root = Path(__file__).resolve().parent
+    full_path = (repo_root / task_path).resolve()
+    spec = importlib.util.spec_from_file_location("task_module", str(full_path))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)  # type: ignore
+    return module
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--task", type=str, default="tasks/experiments.py",
+                    help="Pfad zum Task-Sheet unterhalb des Repo-Roots (z.B. tasks/experiments.py)")
+
     parser.add_argument("--num-seeds", type=int, required=True)
     parser.add_argument("--base-seed", type=int, default=0)
     parser.add_argument("--exp-num", type=int, default=0)
@@ -33,7 +46,7 @@ def main():
         f"RANK={rank} | LOCAL_RANK={local_rank} | Device={device}"
     )
     print(f"RESULTS_DIR = {results_dir}")
-
+    task_path = args.task
     experiment_nr = args.exp_num
     total_seeds = args.num_seeds
     seeds_per_rank = math.ceil(total_seeds / world_size)
@@ -47,7 +60,7 @@ def main():
     for seed_index in range(start_index, end_index):
         seed_id = args.base_seed + seed_index
         print(f"\n=== Rank {rank}: starte Seed {seed_id} ===")
-        run_one_seed(seed_id, jobid, rank, results_dir, experiment_nr)
+        run_one_seed(task_path, seed_id, jobid, rank, results_dir, experiment_nr)
 
 if __name__ == "__main__":
     main()

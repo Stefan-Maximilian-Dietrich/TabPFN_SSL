@@ -1,5 +1,4 @@
 from tabpfn import TabPFNClassifier
-from tabpfn.constants import ModelVersion
 import pandas as pd
 #from huggingface_hub import login
 import numpy as np

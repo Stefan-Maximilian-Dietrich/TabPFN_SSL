@@ -4,9 +4,6 @@ from sklearn.datasets import (
     load_iris,
     load_wine,
     load_breast_cancer,
-    load_digits,
-    fetch_covtype,
-    fetch_openml,
     make_circles,
     make_classification,
 )

@@ -11,7 +11,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --partition=lrz-hgx-h100-94x4
 #SBATCH --qos=gpu
-#SBATCH --time=12:00:00
+#SBATCH --time=24:00:00
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=64G
 #SBATCH --export=ALL
@@ -28,6 +28,7 @@ if [ -z "$HUGGINGFACE_HUB_TOKEN" ]; then
   exit 1
 fi
 
+#export PYTHONPATH=/workspace:$PYTHONPATH
 
 ############################
 # Konfiguration des Experiments
@@ -35,11 +36,11 @@ fi
 EXP_DIR=/dss/dsshome1/03/di35lox/SSH/TabPFN_SSL
 IMG=/dss/dsshome1/03/di35lox/containers/nvidia+pytorch+23.10-py3.sqsh
 
-NUM_SEEDS=5
-BASE_SEED=0
-
-# EXP_NUM wird von run.sh/sbatch gesetzt: --export=ALL,EXP_NUM=...
+NUM_SEEDS="${NUM_SEEDS:-5}"
+BASE_SEED="${BASE_SEED:-0}"
 EXP_NUM="${EXP_NUM:-0}"
+TASK_FILE="${TASK_FILE:-tasks/experiments.py}"
+
 
 cd "$EXP_DIR"
 
@@ -100,10 +101,11 @@ srun -N"$SLURM_NNODES" \
     --rdzv_id="$SLURM_JOB_ID" \
     --rdzv_backend=c10d \
     --rdzv_endpoint="$MASTER_ADDR:$MASTER_PORT" \
-    /workspace/model_runner.py \
-      --num-seeds="$NUM_SEEDS" \
-      --base-seed="$BASE_SEED" \
-      --exp-num="$EXP_NUM"
+    /workspace/scripts/model_runner.py \
+        --task="$TASK_FILE" \
+        --num-seeds="$NUM_SEEDS" \
+        --base-seed="$BASE_SEED" \
+        --exp-num="$EXP_NUM"
 
 ############################
 # Laufzeit ausgeben + Zusammenfassung

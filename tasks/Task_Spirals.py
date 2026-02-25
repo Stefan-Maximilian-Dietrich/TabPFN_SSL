@@ -1,8 +1,9 @@
-import data as ds
-import functions as fun
-import classifier as cl
-import decision as dec
+import modules.data as ds
+import scripts.functions as fun
+import modules.classifier as cl
+import modules.decision as dec
 
+print("Experiments")
 
 DATASETS = [
     ds.Spirals()
