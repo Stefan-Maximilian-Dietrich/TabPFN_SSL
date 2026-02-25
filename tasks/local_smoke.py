@@ -12,7 +12,7 @@ class SklearnLogReg:
     name = "sklearn_logreg"
 
     def __init__(self):
-        self.model = LogisticRegression(max_iter=200)
+        self.model = LogisticRegression(max_iter=1000)
 
     def fit(self, df):
         X = df.drop(columns=["target"]).to_numpy()
