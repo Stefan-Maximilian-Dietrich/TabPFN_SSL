@@ -3,3 +3,4 @@ pandas
 scikit-learn
 pytest
 ruff
+torch --index-url https://download.pytorch.org/whl/cpu
