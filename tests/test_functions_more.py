@@ -8,40 +8,50 @@ class DummyClassifier:
     name = "dummy"
 
     def fit(self, df):
+        # df is a DataFrame with features + "target"
         return self
 
     def predict(self, df):
-        # predict alternating 0/1
-        return np.array([i % 2 for i in range(len(df))])
+        # df is a DataFrame with features + "target"
+        # Return a deterministic prediction vector
+        return np.array([i % 2 for i in range(len(df))], dtype=int)
 
 
-def test_confusion_class_usage():
-    """
-    confusion is a class in this repo, not a plain function.
-    We test it via its call pattern used in SSL.
-    """
-    y_true = np.array([0, 0, 1, 1])
-    y_pred = np.array([0, 1, 0, 1])
-
-    evaluator = fun.confusion  # class reference
-
-    # In your code confusion is called like:
-    # Evaluation(self.Classifier).run(...)
-    # but internally it eventually computes a 2x2 matrix.
-    cm = evaluator(DummyClassifier())(y_true, y_pred)
-
-    assert cm.shape == (2, 2)
-    assert cm.sum() == len(y_true)
-
-
-def test_predictor_produces_predictions_length():
-    df = pd.DataFrame(
+def _make_df(n: int = 6) -> pd.DataFrame:
+    return pd.DataFrame(
         {
-            "f1": [0.1, 0.2, 0.3],
-            "f2": [1.0, 2.0, 3.0],
-            "target": [0, 1, 0],
+            "f1": np.linspace(0.0, 1.0, n),
+            "f2": np.linspace(1.0, 2.0, n),
+            "target": np.array([0, 1] * (n // 2) + ([0] if n % 2 else []), dtype=int),
         }
     )
-    clf = DummyClassifier()
-    preds = fun.predictor(clf, df)
+
+
+def test_confusion_class_usage_dataframe_inputs():
+    """
+    In this repo, confusion is a callable object that:
+      - fits the model on 'labled' (DataFrame)
+      - predicts on 'test' (DataFrame)
+      - computes sklearn confusion_matrix(test["target"], y_pred)
+    So we must pass DataFrames, not y arrays.
+    """
+    labeled = _make_df(6)
+    test = _make_df(6)
+
+    cm = fun.confusion(DummyClassifier())(labeled, test)
+
+    assert cm.shape == (2, 2)
+    assert cm.sum() == len(test)
+
+
+def test_predictor_class_usage_dataframe_input():
+    """
+    predictor is also a class/callable in this repo.
+    It should call model.predict(df) and return a prediction vector.
+    """
+    df = _make_df(5)
+
+    preds = fun.predictor(DummyClassifier())(df)
+
     assert len(preds) == len(df)
+    assert set(np.unique(preds)).issubset({0, 1})
