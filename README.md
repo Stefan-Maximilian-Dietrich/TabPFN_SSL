@@ -50,7 +50,7 @@ p(D \cup (x_i, \hat{y}*i) \mid D)
 = \int*\Theta p(D \cup (x_i, \hat{y}_i) \mid \theta), p(\theta \mid D), d\theta,
 ]
 
-where (D) is the labeled dataset and (p(\theta \mid D)) is the posterior over parameters.
+where (D) is the labeled dataset and (p(\theta \mid D)) is the posterior over parameters..
 
 Intuitively, the PPP evaluates how well a candidate pseudo-labeled instance fits not just a single model but a distribution over plausible models.
 
