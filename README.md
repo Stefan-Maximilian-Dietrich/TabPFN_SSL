@@ -2,6 +2,7 @@
 ![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Code Style](https://img.shields.io/badge/code%20style-ruff-blue)
+[![codecov](https://codecov.io/gh/USERNAME/REPO/branch/main/graph/badge.svg)](https://codecov.io/gh/USERNAME/REPO)
 # Bayesian Pseudo-Label Selection with Prior-Data Fitted Networks
 
 **Project proposal & research repository**
