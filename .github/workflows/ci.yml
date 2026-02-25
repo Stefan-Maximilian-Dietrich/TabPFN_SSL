@@ -40,4 +40,4 @@ jobs:
           RESULTS_DIR: results_ci
           PYTHONPATH: ${{ github.workspace }}
         run: |
-          pytest -q
+          pytest -v
