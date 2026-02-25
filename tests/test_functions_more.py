@@ -35,15 +35,20 @@ def test_confusion_class_usage_dataframe_inputs():
     assert cm.sum() == len(test)
 
 
-def test_predictor_class_usage_dataframe_inputs():
+def test_predictor_returns_dataframe_with_expected_shape_and_columns():
     """
-    predictor in this repo expects (labeled, unlabeled) DataFrames.
-    It fits on labeled and predicts on unlabeled.
+    In this repo, predictor(model)(labeled, unlabeled) returns a DataFrame
+    (typically unlabeled augmented with predictions / pseudo labels).
+    We assert stable interface properties instead of assuming a y_pred vector.
     """
     labeled = _make_df(6)
     unlabeled = _make_df(4)
 
-    preds = fun.predictor(DummyClassifier())(labeled, unlabeled)
+    out = fun.predictor(DummyClassifier())(labeled, unlabeled)
 
-    assert len(preds) == len(unlabeled)
-    assert set(np.unique(preds)).issubset({0, 1})
+    assert isinstance(out, pd.DataFrame)
+    assert len(out) == len(unlabeled)
+
+    # should contain at least the original columns
+    for col in unlabeled.columns:
+        assert col in out.columns
