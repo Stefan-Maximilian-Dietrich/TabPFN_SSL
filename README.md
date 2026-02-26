@@ -24,117 +24,60 @@ Date: **October 2025**
 * [Disclaimer on the Use of LLMs](#disclaimer-on-the-use-of-llms)
 
 ---
+## Theoretical Background
 
-## Bayesian PLS in Semi-Supervised Learning
-
-Obtaining labeled data is often costly, time-consuming, and dependent on expert knowledge, whereas unlabeled data are typically abundant and easy to collect. This imbalance has led to the rise of **semi-supervised learning (SSL)**, with **self-training (or pseudo-labeling)** being one of the most widely used approaches.
-
-Self-training iteratively adds pseudo-labeled instances to the training set based on predictions from a model trained on labeled data. A crucial step in this process is **pseudo-label selection (PLS)**, which determines which pseudo-labeled instances to include.
-Importantly, *PLS refers to the selection of pseudo-labeled instances, not the pseudo-labels themselves.*
-
-To mitigate overfitting and the reinforcement of incorrect pseudo-labels (confirmation bias), selection strategies should be less dependent on the current model and more informed by the structure and uncertainty inherent in the labeled dataset.
-
-A Bayesian framework designed to reduce model dependency and improve robustness in the pseudo-label selection process was proposed in prior work and has since shown promising results and extensions.
+This repository builds on a decision-theoretic view of **self-training / pseudo-labeling** in semi-supervised learning (SSL) and combines it with **Prior-Data Fitted Networks (PFNs)**—in particular **TabPFN**—to obtain a principled, uncertainty-aware pseudo-label selection criterion. :contentReference[oaicite:0]{index=0}
 
 ---
 
-### Pseudo Posterior Predictive (PPP)
+### 1) Bayesian Pseudo-Label Selection in SSL
 
-The key idea is to avoid evaluating the likelihood of a pseudo-labeled instance
-((x_i, \hat{y}_i)) under a single estimated parameter vector (\hat{\theta}), which can be prone to overfitting.
+In many practical settings, labeled data are expensive or scarce, while unlabeled data are abundant. A widely used SSL strategy is **self-training** (pseudo-labeling): a model is trained on the labeled set, then predicts labels for unlabeled samples, and selected pseudo-labeled samples are iteratively added to the training set. :contentReference[oaicite:1]{index=1}
 
-Instead, the **Pseudo Posterior Predictive (PPP)** criterion marginalizes over the *entire posterior distribution* of the model parameters (\theta):
+A central challenge is **pseudo-label selection (PLS)**: deciding *which* pseudo-labeled samples should be trusted early on. Naively selecting highly confident predictions can reinforce mistakes and lead to **confirmation bias**. To reduce this risk, Bayesian PLS aims to be *less dependent on a single fitted model* and instead incorporate uncertainty informed by the labeled data. :contentReference[oaicite:2]{index=2}
 
-[
-p(D \cup (x_i, \hat{y}*i) \mid D)
-= \int*\Theta p(D \cup (x_i, \hat{y}_i) \mid \theta), p(\theta \mid D), d\theta,
-]
-
-where (D) is the labeled dataset and (p(\theta \mid D)) is the posterior over parameters..
-
-Intuitively, the PPP evaluates how well a candidate pseudo-labeled instance fits not just a single model but a distribution over plausible models.
-
-This approach is both empirically motivated and theoretically grounded in **Bayesian decision theory**. Selecting the pseudo-labeled instance that maximizes the PPP corresponds to choosing the Bayes-optimal action under a utility function reflecting model fit.
+A principled Bayesian criterion for selecting a candidate pseudo-labeled instance \((x_i, \hat{y}_i)\) is the **Pseudo Posterior Predictive (PPP)**:
+\[
+p\bigl(D \cup (x_i,\hat{y}_i)\mid D\bigr)
+= \int_\Theta p\bigl(D \cup (x_i,\hat{y}_i)\mid \theta\bigr)\, p(\theta\mid D)\, d\theta,
+\]
+where \(D\) is the labeled dataset and \(p(\theta\mid D)\) is the posterior over parameters. Intuitively, PPP measures how consistent a candidate pseudo-label is across *plausible* model parameterizations, rather than trusting a single point estimate \(\hat{\theta}\). :contentReference[oaicite:3]{index=3}
 
 ---
 
-### Scalability Limitations of Classical Bayesian Methods
+### 2) Prior-Data Fitted Networks and TabPFN
 
-While PPP-based methods can be approximated or computed directly for simple models, they do not scale to complex deep learning architectures. In high-dimensional parameter spaces, the required integrals become analytically and numerically intractable.
+**Prior-Data Fitted Networks (PFNs)** approximate Bayesian inference *directly* with a neural network that is trained offline on many synthetic tasks sampled from a prior. Concretely, a PFN learns to approximate the posterior predictive distribution
+\[
+p(y\mid x, D)\ \propto\ \int_{\Phi} p(y\mid x,\phi)\, p(D\mid \phi)\, p(\phi)\, d\phi
+\]
+by training a model \(q_\theta(y\mid x, D)\) over tasks \(D \sim p(D)\). This replaces expensive inference procedures (e.g., MCMC/VI) by a single forward pass at test time. :contentReference[oaicite:4]{index=4}
 
-This motivates the use of **Prior-Data Fitted Networks (PFNs)**.
-
----
-
-## Prior-Data Fitted Networks (PFN)
-
-Prior-Data Fitted Networks (PFNs) approximate Bayesian inference by directly learning the **posterior predictive distribution (PPD)** of a given prior.
-
-Formally, the PPD integrates over all possible hypotheses (\varphi):
-
-[
-p(y \mid x, D) \propto
-\int_\Phi p(y \mid x, \varphi), p(D \mid \varphi), p(\varphi), d\varphi.
-]
-
-Instead of computing this integral explicitly (e.g. via MCMC), a transformer
-(q_\theta(y \mid x, D)) is trained offline on synthetically generated datasets sampled from a known prior.
-
-The PFN is optimized using:
-
-[
-\mathcal{L}*{\mathrm{PFN}} =
-\mathbb{E}*{{(x_{\text{test}}, y_{\text{test}})} \cup D_{\text{train}}}
-\left[
-
-* \log q_\theta(y_{\text{test}} \mid x_{\text{test}}, D_{\text{train}})
-  \right].
-  ]
-
-As a result, PFNs perform Bayesian inference **in a single forward pass**, without parameter updates at inference time.
+**TabPFN** is a PFN specialized for *small tabular classification* problems: given labeled examples and test inputs, it performs in-context prediction without gradient-based retraining or hyperparameter tuning, while being computationally efficient and empirically strong on its target regime. :contentReference[oaicite:5]{index=5}
 
 ---
 
-### TabPFN
+### 3) SSL with PFNs: Decision-Theoretic Selection via Posterior Predictives
 
-**TabPFN** is a PFN specialized for small tabular classification problems. It is trained on synthetic datasets generated from a prior combining Bayesian neural networks and structural causal models.
+A key connection is that, for the pseudo-label selection problem considered here, the PPP criterion can be expressed via the posterior predictive distribution (PPD):
+\[
+p\bigl(D \cup (x_i,\hat{y}_i)\mid D\bigr)\ =\ p(\hat{y}_i \mid x_i, D).
+\]
+This means that selecting the candidate with maximal PPP is equivalent to selecting the candidate with maximal posterior predictive probability for its predicted label—yielding a **Bayes-optimal action** under a suitable utility formulation. :contentReference[oaicite:6]{index=6}
 
-TabPFN:
+This is exactly where PFNs/TabPFN become valuable:
 
-* Performs in-context learning,
-* Requires no hyperparameter tuning,
-* Produces predictions in under a second,
-* Achieves state-of-the-art performance on small tabular datasets.
+- **Principled uncertainty awareness:** Instead of relying on a single model’s often overconfident prediction, the selection score reflects uncertainty encoded by the (implicit) posterior predictive. :contentReference[oaicite:7]{index=7}  
+- **Scalability in practice:** While direct PPP computation can be intractable for high-dimensional parameter spaces, TabPFN provides an efficient approximation to the PPD that can be recomputed across self-training iterations. :contentReference[oaicite:8]{index=8}  
+- **Model-agnostic selection:** The pseudo-label selection criterion is conceptually separated from the downstream classifier that is trained on the growing labeled set—supporting modular experimentation with different learners and stopping criteria. :contentReference[oaicite:9]{index=9}  
 
-This makes TabPFN a suitable tool for approximating the PPP.
-
----
-
-## Semi-Supervised Learning with PFNs
-
-A key theoretical result shows that:
-
-[
-p(D \cup (x_i, \hat{y}_i) \mid D)
-= p(\hat{y}_i \mid x_i, D).
-]
-
-Thus, selection based on the posterior predictive distribution computed via TabPFN corresponds to the **Bayes-optimal action**.
-
-This removes the need to explicitly specify a prior distribution and yields a **model-agnostic**, scalable pseudo-label selection strategy.
-
-An interesting extension would involve defining multi-objective utility functions over multiple PFNs.
+Overall, combining Bayesian PLS with PFN-style posterior predictives yields a method that is both **theoretically grounded** (decision-theoretic Bayes optimality) and **practically usable** (fast predictive scoring), making it an attractive alternative to ad-hoc confidence/entropy heuristics in self-training pipelines. :contentReference[oaicite:10]{index=10}
 
 ---
 
-## Related Work
+### References
 
-* Laplace-based Bayesian PLS methods rely on restrictive assumptions such as unimodality and low dimensionality.
-* MCMC-based approaches are theoretically robust but computationally infeasible in SSL settings.
-* Exact PPP computation is possible for conjugate models but limited in scope.
-* Uncertainty-based pseudo-labeling methods often collapse uncertainty into a single metric.
-* Existing TabPFN-based SSL approaches focus on ERM, whereas this work embeds TabPFN into a **decision-theoretic self-training loop** with iterative PPP recomputation.
-
+The theoretical framing above follows the project proposal and the referenced works therein (self-training / pseudo-labeling, Bayes-optimal PLS via PPP, PFNs, TabPFN, and related SSL strategies). :contentReference[oaicite:11]{index=11}
 ---
 ## Installation
 
