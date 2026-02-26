@@ -73,25 +73,14 @@ This motivates the use of TabPFN to compute the posterior predictive distributio
 ---
 
 ### 3) SSL with PFNs: Decision-Theoretic Selection via Posterior Predictives
+As stated in the second theorem in [Rodemann et al., 2023A](https://arxiv.org/abs/2302.08883), for our purposes it holds that:
 
-A key theoretical insight is that, under a suitable formulation, the PPP selection criterion reduces to evaluating the posterior predictive probability:
+$$ p(D \cup (x_i, \hat{y}_i) \mid D) = p(\hat{y}_i \mid x_i, D) $$
 
-$$
-p(D \cup (x_i, \hat{y}_i) \mid D)
-=
-p(\hat{y}_i \mid x_i, D)
-$$
+This implies that the selection based on the TabPFN-calculated PPD approximation for a fixed predicted label corresponds to the Bayes-optimal action. Hence, the method is grounded on a solid decision-theoretic foundation. An additional advantage is that the approach is model-agnostic and removes the need to explicitly define a prior distribution.
 
-This means that selecting the pseudo-label with maximal PPP corresponds to selecting the candidate with maximal posterior predictive probability — a Bayes-optimal decision under an appropriate utility formulation.
+The computational efficiency demonstrated in [Hollmann et al., 2023](https://arxiv.org/abs/2207.01848) further improves scalability, allowing larger datasets and higher-capacity models to be handled effectively. A promising extension would involve defining a multi-objective utility function over multiple PFNs, analogous to a multi-model likelihood approach.
 
-This connection makes PFNs particularly powerful in SSL:
-
-- **Principled uncertainty awareness:** Selection is based on posterior predictive uncertainty rather than raw confidence scores.
-- **Reduced confirmation bias:** Decisions integrate over plausible parameter configurations.
-- **Computational efficiency:** TabPFN provides fast approximations of the posterior predictive without explicit Bayesian inference.
-- **Modular design:** The pseudo-label selection mechanism can be separated from the downstream classifier.
-
-By combining Bayesian pseudo-label selection with PFN-style posterior predictive modeling, this framework achieves a rare combination of strong theoretical grounding and practical efficiency — making it an attractive alternative to heuristic confidence- or entropy-based selection strategies in self-training pipelines.
 ---
 ## Installation
 
