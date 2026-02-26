@@ -136,7 +136,32 @@ An interesting extension would involve defining multi-objective utility function
 * Existing TabPFN-based SSL approaches focus on ERM, whereas this work embeds TabPFN into a **decision-theoretic self-training loop** with iterative PPP recomputation.
 
 ---
+## Installation
 
+This repository relies on [uv](https://docs.astral.sh/uv/) for managing the virtual environment and project dependencies.  
+Please ensure that `uv` is installed before continuing.
+
+Follow the steps below to set up the project locally:
+
+1. **Create a virtual environment**
+   ```bash
+   uv venv
+   ```
+
+2. **Activate the virtual environment**
+   - On Linux/macOS:
+     ```bash
+     source .venv/bin/activate
+     ```
+   - On Windows:
+     ```bash
+     .venv\Scripts\activate
+     ```
+
+3. **Install the project in editable mode**
+   ```bash
+   uv pip install -e .
+   ```
 ## Algorithmic Framework
 
 **Pseudo-Label Selection with PFN**
