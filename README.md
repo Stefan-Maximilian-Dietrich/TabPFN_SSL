@@ -456,26 +456,19 @@ The use of large language models (LLMs) in the preparation of this work is outli
 
 *This repository represents an ongoing research project and will be extended with experimental results and code.*
 
+
 ## Citation
 
-If you use this repository in your research, academic work, or derivative projects, please cite it as follows:
+If you use this project, please cite it as follows:
 
 ```
-@misc{Dietrich2026TabPFN_SSL,
+@misc{osisPyRepr2024,
   author = {Stefan Maximilian Dietrich},
-  title = {TabPFN_SSL: A Modular Framework for Semi-Supervised Learning with TabPFN},
+  title = {Bayesian Pseudo-Label Selection with Prior-Data Fitted Networks},
   year = {2026},
 }
 ```
 
-If this project contributes to published work, proper citation is greatly appreciated.
-
----
-
 ## License
 
-This project is distributed under the MIT License.
-
-You are free to use, modify, and distribute this software in accordance with the terms specified in the LICENSE file.
-
-For full details, see the [LICENSE](LICENSE) file included in this repository.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
