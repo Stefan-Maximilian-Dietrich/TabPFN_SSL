@@ -52,23 +52,23 @@ In[Rodemann et al., 2023A](https://arxiv.org/abs/2302.08883) and [Dietrich et al
 
 ### 2) Prior-Data Fitted Networks and TabPFN
 
-Prior-Data Fitted Networks (PFNs) approximate Bayesian inference directly using a neural network trained offline on many synthetic tasks sampled from a prior distribution.
+Prior-Data Fitted Networks (PFNs), as described in [Müller et al., 2022](https://arxiv.org/abs/2112.10510), are neural networks that directly approximate Bayesian inference by simulating the posterior predictive distribution (PPD) of a given prior. Formally, the PPD integrates over all possible hypotheses~\(\varphi \in \Phi\) of the data-generating process:
+\[
+p(y \mid x, D) \propto \int_\Phi p(y \mid x, \varphi)\, p(D \mid \varphi)\, p(\varphi)\, d\varphi.
+\]
+Instead of performing this integration explicitly using MCMC or variational methods, a Transformer \(q_\theta(y \mid x, D)\) is trained to approximate this distribution directly. For that purpose, datasets \(D \sim p(D)\) are synthetically generated from a known prior sampler, and the PFN loss is minimized:
+\[
+\mathcal{L}_{\mathrm{PFN}} = \mathbb{E}_{\{(x_{\text{test}}, y_{\text{test}})\} \cup D_{\text{train}} \sim p(D)}\left[-\log q_\theta(y_{\text{test}} \mid x_{\text{test}}, D_{\text{train}})\right].
+\]
+The resulting network thus learns to approximate the conditional probability distribution \(p(y \mid x, D)\) for any new task in a single forward pass, without requiring explicit parameter adaptation during inference. As a result, PFNs replace learning on new data with a form of trained in-context learning behavior grounded in the pre-learned prior.
 
-Instead of performing expensive inference procedures such as MCMC or variational inference at test time, a PFN learns to approximate the posterior predictive distribution:
+Building upon the PFN principle, TabPFN [Hollmann et al., 2023](https://arxiv.org/abs/2207.01848) is a transformer model pre-trained to approximate Bayesian inference for small tabular classification problems. Instead of training a new model for each dataset, TabPFN performs in-context learning: given a set of labeled examples and test samples as input, it predicts labels for the test samples in a single forward pass, without any gradient-based updates or hyperparameter tuning.
 
-$$
-p(y \mid x, D)
-\propto
-\int_\Phi
-p(y \mid x, \phi)
-\, p(D \mid \phi)
-\, p(\phi)
-\, d\phi
-$$
+TabPFN is trained offline once on a large number of synthetic datasets sampled from a prior that combines Bayesian neural networks (BNNs) and structural causal models (SCMs). This prior encodes a preference for simple and causal data-generating mechanisms, reflecting Occam's razor. Through this training, the transformer learns to approximate the posterior predictive distribution implied by that prior, effectively performing Bayesian inference over a large ensemble of possible generative models.
 
-A neural network $q_\theta(y \mid x, D)$ is trained over tasks $D \sim p(D)$ to approximate this predictive distribution.
+In practice, TabPFN can handle datasets with up to approximately $1{,}000$ training samples, $100$ numerical features, and $10$ classes, producing predictions in less than a second.Which is a huge improvement over the technique described in Section \ref{sec:BPLS}. Despite its simplicity and speed, it achieves state-of-the-art accuracy on small numerical datasets, outperforming gradient-boosted decision trees and matching sophisticated AutoML systems while being orders of magnitude faster.
 
-**TabPFN** specializes this idea for small tabular classification problems. It performs in-context prediction without gradient-based retraining or hyperparameter tuning, while maintaining strong empirical performance in its target regime.
+This motivates the use of TabPFN to compute the posterior predictive distribution (PPD), which we employ to approximate the PPP in this paper.
 
 ---
 
