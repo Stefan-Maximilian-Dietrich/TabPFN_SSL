@@ -24,6 +24,10 @@ Date: **October 2025**
 * [Disclaimer on the Use of LLMs](#disclaimer-on-the-use-of-llms)
 
 ---
+flowchart TD
+    A[Input Data] --> B[Preprocessing]
+    B --> C[Model]
+    C --> D[Prediction]
 ## Theoretical Background
 
 This repository builds on a decision-theoretic perspective on semi-supervised learning (SSL), combining Bayesian pseudo-label selection with Prior-Data Fitted Networks (PFNs), in particular TabPFN.
