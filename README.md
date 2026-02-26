@@ -457,6 +457,9 @@ The use of large language models (LLMs) in the preparation of this work is outli
 *This repository represents an ongoing research project and will be extended with experimental results and code.*
 
 
+
+---
+
 ## Citation
 
 If you use this repository in academic work, research projects, or derivative implementations, please cite it as follows:
@@ -470,9 +473,6 @@ If you use this repository in academic work, research projects, or derivative im
 ```
 
 Proper citation is appreciated if this project contributes to published or submitted work.
-
----
-
 ## License
 
 This project is licensed under the MIT License.
