@@ -324,6 +324,108 @@ Output:
 ---
 ## Modular Architecture & Extensibility
 
+```mermaid
+flowchart LR
+
+%% =====================================
+%% CLASSIFIER (4 Inputs)
+%% =====================================
+
+A1((A1))
+A2((A2))
+A3((A3))
+A4((A4))
+
+CL([Classifier])
+
+A1 --- CL
+A2 --- CL
+A3 --- CL
+A4 --- CL
+
+
+%% =====================================
+%% DECISION RULE (oben)
+%% =====================================
+
+R1((R1))
+R2((R2))
+
+DR([Decision Rule])
+
+R1 --- DR
+R2 --- DR
+
+%% Gestrichelter Pfeil
+CL -.-> R1
+
+
+%% =====================================
+%% DATA (unten)
+%% =====================================
+
+D1((D1))
+D2((D2))
+
+DATA([Data])
+
+D1 --- DATA
+D2 --- DATA
+
+
+%% =====================================
+%% TASKS
+%% =====================================
+
+CL --> T([Tasks])
+DR --> T
+DATA --> T
+
+TK1((k))
+TK2((m))
+
+TK1 --> T
+TK2 --> T
+
+
+%% =====================================
+%% SSL BLOCK (inkl. α und β)
+%% =====================================
+
+subgraph SSL Pipeline
+    SSL[SSL Engine]
+    S1((α))
+    S2((β))
+
+    S1 --> SSL
+    S2 --> SSL
+end
+
+T --> SSL
+
+
+%% =====================================
+%% RESULTS BLOCK
+%% =====================================
+
+subgraph Result Layer
+    G[Graphic Results]
+    TAB[Tabular Results]
+end
+
+SSL --> G
+SSL --> TAB
+
+
+%% =====================================
+%% EXPORT
+%% =====================================
+
+G --> EP[Explore Platform]
+TAB --> EX[Explore Excel]
+
+```
+
 This project is intentionally **modular**: you can extend or swap components without touching the rest of the system.  
 The three core building blocks are:
 
