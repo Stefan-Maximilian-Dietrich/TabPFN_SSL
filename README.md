@@ -165,13 +165,22 @@ Follow the steps below to set up the project locally:
 
 ## Usage
 
-The project provides an interactive runner that allows you to execute predefined task sheets and experiments in a structured way.
+The project can be executed in two different modes:
+
+1. **Interactive experiment execution**
+2. **Evaluation mode**
+
+---
+
+### Interactive Runner (default)
 
 To start the interactive interface, run:
 
 ```bash
 uv run python run_interactive.py
 ```
+
+> **Note:** This is the default execution mode if the repository is not running inside the LRZ AI Cloud environment.
 
 After launching the runner, you will see an overview of the current repository and execution mode:
 
@@ -182,6 +191,8 @@ After launching the runner, you will see an overview of the current repository a
 Repo:  <path-to-repository>
 Mode:  local (auto_detect_lrz=False)
 ```
+
+---
 
 ### 1. Select a Task Sheet
 
@@ -198,7 +209,7 @@ Auswahl (1-3) [default 1]:
 Enter the corresponding number (e.g. `3` for `toy_examples.py`).  
 If no input is provided, the default option is selected.
 
-> **Note:** The structure of task sheets and the procedure for adding new experiments is explained in detail in the section  
+> The structure of task sheets and the procedure for adding new experiments is explained in detail in the section  
 > **Modules → Tasks** of this README.
 
 ---
@@ -233,16 +244,34 @@ NUM_SEEDS [default 5]:
 BASE_SEED [default 0]:
 ```
 
-- `NUM_SEEDS` determines how many random seeds are evaluated.
-- `BASE_SEED` specifies the starting seed value.
+- `NUM_SEEDS` determines how many times an experiment is repeated.
+- The seeds used range from `BASE_SEED` up to  
+  `BASE_SEED + NUM_SEEDS - 1`.
 
-If no value is entered, the defaults are used.
+For example:
+
+- `BASE_SEED = 0`
+- `NUM_SEEDS = 5`
+
+→ Seeds `0, 1, 2, 3, 4` will be executed.
+
+If no value is entered, the default values are used.
 
 ---
 
 The selected experiments are then executed sequentially according to the chosen configuration.
 
+---
 
+### Evaluation Mode (placeholder)
+
+The repository also provides an evaluation entry point:
+
+```bash
+uv run python run_evaluation.py
+```
+
+> Detailed documentation for evaluation mode will be added here.
 ## Algorithmic Framework
 
 **Pseudo-Label Selection with PFN**
