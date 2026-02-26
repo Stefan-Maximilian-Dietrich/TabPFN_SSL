@@ -469,7 +469,6 @@ Proper citation is appreciated if this project contributes to published or submi
 
 If you use this repository in academic work, research projects, or derivative implementations, please cite it as follows:
 ```
-bibtex
 @misc{Dietrich2026TabPFN_SSL,
   author = {Stefan Maximilian Dietrich},
   title  = {Bayesian Pseudo-Label Selection with Prior-Data Fitted Networks},
