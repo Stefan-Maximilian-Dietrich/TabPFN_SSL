@@ -162,6 +162,87 @@ Follow the steps below to set up the project locally:
    ```bash
    uv pip install -e .
    ```
+
+## Usage
+
+The project provides an interactive runner that allows you to execute predefined task sheets and experiments in a structured way.
+
+To start the interactive interface, run:
+
+```bash
+uv run python run_interactive.py
+```
+
+After launching the runner, you will see an overview of the current repository and execution mode:
+
+```
+======================================
+ TabPFN_SSL - Interaktiver Runner
+======================================
+Repo:  <path-to-repository>
+Mode:  local (auto_detect_lrz=False)
+```
+
+### 1. Select a Task Sheet
+
+You will be prompted to choose one of the available task sheets:
+
+```
+Welches Task-Sheet möchtest du ausführen?
+-> [1] Task_Spirals.py
+   [2] local_smoke.py
+   [3] toy_examples.py
+Auswahl (1-3) [default 1]:
+```
+
+Enter the corresponding number (e.g. `3` for `toy_examples.py`).  
+If no input is provided, the default option is selected.
+
+> **Note:** The structure of task sheets and the procedure for adding new experiments is explained in detail in the section  
+> **Modules → Tasks** of this README.
+
+---
+
+### 2. Select Experiments
+
+Next, specify which experiment(s) to execute:
+
+```
+Experiment wählen: Zahl (z.B. 3), Range (z.B. 0-10) oder 'all':
+```
+
+Supported formats:
+
+- Single experiment: `3`
+- Range of experiments: `0-10`
+- All experiments: `all`
+
+Example:
+```
+1-10
+```
+
+---
+
+### 3. Configure Seeds
+
+You will then be asked to define the seed configuration:
+
+```
+NUM_SEEDS [default 5]:
+BASE_SEED [default 0]:
+```
+
+- `NUM_SEEDS` determines how many random seeds are evaluated.
+- `BASE_SEED` specifies the starting seed value.
+
+If no value is entered, the defaults are used.
+
+---
+
+The selected experiments are then executed sequentially according to the chosen configuration.
+
+
 ## Algorithmic Framework
 
 **Pseudo-Label Selection with PFN**
