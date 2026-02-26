@@ -49,7 +49,9 @@ pip-wheel-metadata/
 # =========================
 # (uv.lock MUSS committed werden!)
 # uv.lock
-
+.coverage
+coverage.xml
+*.egg-info/
 # =========================
 # Jupyter
 # =========================
