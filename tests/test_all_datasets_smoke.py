@@ -1,7 +1,6 @@
 import inspect
 from typing import Callable, Dict, List, Type
 
-import numpy as np
 import pandas as pd
 import pytest
 
