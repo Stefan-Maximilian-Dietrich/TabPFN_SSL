@@ -459,16 +459,24 @@ The use of large language models (LLMs) in the preparation of this work is outli
 
 ## Citation
 
-If you use this project, please cite it as follows:
+If you use this repository in academic work, research projects, or derivative implementations, please cite it as follows:
 
-```
-@misc{osisPyRepr2024,
+```bibtex
+@misc{Dietrich2026TabPFN_SSL,
   author = {Stefan Maximilian Dietrich},
-  title = {Bayesian Pseudo-Label Selection with Prior-Data Fitted Networks},
-  year = {2026},
+  title  = {Bayesian Pseudo-Label Selection with Prior-Data Fitted Networks},
+  year   = {2026},
 }
 ```
 
+Proper citation is appreciated if this project contributes to published or submitted work.
+
+---
+
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
+
+You are free to use, modify, and distribute this software in accordance with the terms specified in the LICENSE file.
+
+For full details, see the [LICENSE](LICENSE) file included in this repository.
