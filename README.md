@@ -32,25 +32,21 @@ This repository builds on a decision-theoretic perspective on semi-supervised le
 
 ### 1) Bayesian Pseudo-Label Selection in SSL
 
-In many practical settings, labeled data are scarce, while unlabeled data are abundant. A widely used SSL strategy is **self-training (pseudo-labeling)**: a model is trained on the labeled dataset, predicts labels for unlabeled samples, and selected pseudo-labeled samples are iteratively added to the training set.
+Obtaining labeled data is often costly, time-consuming, and dependent on expert knowledge, whereas unlabeled data are typically abundant and easy to collect. This imbalance has led to the rise of semi-supervised learning (SSL), with self-training (or pseudo-labeling) being one of the most widely used approaches~\cite{shi2018transductive, lee2013pseudo, mcclosky2006effective}. Self-training iteratively adds pseudo-labeled instances to the training set based on predictions from a model trained on labeled data. A crucial step in this process is pseudo-label selection (PLS), which determines which pseudo-labeled instances to include.\footnote{Importantly, PLS refers to the selection of pseudo-labeled instances, not the pseudo-labels themselves.}
 
-A central challenge is **pseudo-label selection (PLS)** — deciding which pseudo-labeled samples should be trusted early on. Naively selecting highly confident predictions can reinforce errors and lead to confirmation bias.
+To mitigate overfitting and the reinforcement of incorrect pseudo-labels (i.e., confirmation bias), selection strategies should be less dependent on the current model and more informed by the structure and uncertainty inherent in the labeled dataset. In~\cite{RodemannBPLS}, a Bayesian framework designed to reduce model dependency and improve robustness in the pseudo-label selection process was proposed. This framework has since shown promising results and extensions in~\cite{RodemannIAL, dietrich2024semisupervisedlearningguidedgeneralized, dietrich2024softrevisonBNN}.
 
-To mitigate this issue, Bayesian PLS considers uncertainty over model parameters instead of relying on a single fitted model.
+This framework incorporates a principled approach for pseudo-label selection that explicitly accounts for model uncertainty: the \textit{Pseudo Posterior Predictive (PPP)}. This method provides a robust alternative to conventional selection strategies that rely solely on a single model’s predictions, which are often overconfident, especially in low-data or high-dimensional settings.
 
-A principled Bayesian criterion for selecting a candidate pseudo-labeled instance $(x_i, \hat{y}_i)$ is the **Pseudo Posterior Predictive (PPP)**:
+The key idea is to avoid evaluating the likelihood of a pseudo-labeled instance $(x_i, \hat{y}_i)$ under a single estimated parameter vector $\hat{\theta}$, which can be prone to overfitting. Instead, the PPP criterion marginalizes over the \textit{entire posterior distribution} of the model parameters $\theta$, thereby reflecting uncertainty about the correct parameterization. It is formally defined as:
+\[
+p(D \cup (x_i, \hat{y}_i) \mid D) = \int_\Theta p(D \cup (x_i, \hat{y}_i) \mid \theta) \, p(\theta \mid D) \, d\theta,
+\]
+where $D$ is the labeled dataset, and $p(\theta \mid D)$ is the posterior over parameters given the observed data. Intuitively, the PPP evaluates how well a candidate pseudo-labeled instance fits not just a single model but a distribution over plausible models.
 
-$$
-p(D \cup (x_i, \hat{y}_i) \mid D)
-=
-\int_\Theta
-p(D \cup (x_i, \hat{y}_i) \mid \theta)
-\, p(\theta \mid D)\, d\theta
-$$
+This approach is both empirically motivated and theoretically grounded in Bayesian decision theory. \cite{RodemannBPLS} show that selecting the pseudo-labeled instance which maximizes the PPP corresponds to choosing the Bayes-optimal action under a utility function reflecting model fit. By doing so, the method naturally guards against early-stage confirmation bias and prioritizes examples that are consistently probable across the model’s posterior landscape.
 
-Here, $D$ denotes the labeled dataset and $p(\theta \mid D)$ the posterior over parameters.
-
-Intuitively, the PPP measures how consistent a candidate pseudo-label is across plausible model parameterizations, rather than trusting a single point estimate.
+In \cite{RodemannBPLS} and \cite{dietrich2024PLS}, it has been demonstrated that the integral in question can be feasibly approximated or, in certain simplified cases, computed directly. However, these methods have proven effective primarily for relatively simple model structures and datasets of very small to moderate size. They do not scale to more complex deep learning architectures, particularly when the parameter space $\theta$ resides in a high-dimensional domain, making the integral intractable both analytically and numerically. This is why we turn to the fruitful field of PFNs.
 
 ---
 
