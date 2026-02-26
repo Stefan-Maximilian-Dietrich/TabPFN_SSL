@@ -160,7 +160,118 @@ Output:
 ```
 
 ---
+## Modular Architecture & Extensibility
 
+This project is intentionally **modular**: you can extend or swap components without touching the rest of the system.  
+The three core building blocks are:
+
+1. **Datasets** (`data.py`) – provide data as a `pandas.DataFrame`
+2. **Classifiers** (`classifier.py`) – provide a unified training/inference API
+3. **Decision Rules** (`decision.py`) – decide *which* pseudo-labeled sample to select next (semi-supervised selection logic)
+
+A key convention across the entire codebase is the **target column name**:
+
+- The label column **must** be named: `target`
+- All remaining columns are treated as features
+
+---
+
+## Datasets (`BaseDataset` + concrete dataset classes)
+
+### Dataset contract
+A dataset is a class inheriting from `BaseDataset` and implementing:
+
+- `__init__(...)`: call `super().__init__(name="...")`
+- `_load(self) -> pd.DataFrame`: return a DataFrame containing all features **and** a `target` column
+
+`BaseDataset.__call__()` caches the loaded DataFrame and standardizes `target` by converting it to categorical codes `0,1,2,...` (and stores original categories in `df.attrs["target_categories"]`).
+
+### Already implemented datasets
+The following dataset classes are available out-of-the-box:
+
+- `BreastCancer`
+- `Iris`
+- `Wine`
+- `Bank` (Swiss banknotes subset)
+- `MtcarsVS` (mtcars with `vs` as target)
+- `Cassini` (synthetic 3-class, 2D)
+- `Circle2D` (two circles)
+- `Seeds` (UCI Seeds dataset)
+- `Spirals` (two-spirals)
+
+---
+
+## Classifiers (unified training + prediction API)
+
+### Classifier contract
+A classifier is a class that implements:
+
+- `__init__(...)`: set `self.name` and configure hyperparameters / underlying model
+- `fit(self, df: pd.DataFrame, target_col: str = "target") -> self`
+- `predict(self, data, target_col: str = "target") -> np.ndarray`
+- `predict_proba(self, data, target_col: str = "target") -> np.ndarray`
+
+Notes:
+- `fit()` always expects a **DataFrame** with a `target` column.
+- `predict()` / `predict_proba()` accept either a DataFrame (the `target` column is ignored if present) or array-like input.
+- The `target_col` defaults to `"target"` everywhere for consistency.
+
+### Already implemented classifiers
+The following classifier wrappers are implemented:
+
+- `TabPfnClassifier` (TabPFN v2 default)
+- `NaiveBayesClassifier` (`variant="gaussian"` or `variant="multinomial"`)
+- `MultinomialLogitClassifier` (logistic regression + standardization)
+- `SmallNNClassifier` (MLP + standardization)
+- `SVMClassifier` (RBF SVC + standardization, `probability=True`)
+- `RandomForestCls`
+- `GradientBoostingCls`
+- `DecisionTreeCls`
+- `KNNClassifier` (kNN + standardization)
+
+---
+
+## Decision Rules (pseudo-label selection logic)
+
+Decision rules encapsulate **how to pick** the next pseudo-labeled point (or generally: which candidate to select) based on labeled and pseudo-labeled sets.
+
+### Decision rule contract
+A decision rule is a class that implements:
+
+- `__init__(...)`: set `self.name` and optionally keep a classifier instance
+- `__call__(self, labeled: pd.DataFrame, pseudo: pd.DataFrame) -> int`
+
+where the return value is the **row index** (integer) of the selected sample within `pseudo`.
+
+### Already implemented decision rules
+The following selection rules exist:
+
+- `maximalPPP`
+- `SSL_prob`
+- `SSL_confidence`
+
+---
+
+## How to extend the system
+
+### 1) Add a new dataset
+Create a new class in `data.py`:
+
+- Inherit from `BaseDataset`
+- Implement `_load()` returning a `pd.DataFrame`
+- Ensure the label column is called **`target`**
+
+Minimal skeleton:
+
+```python
+class MyDataset(BaseDataset):
+    def __init__(self):
+        super().__init__(name="MyDataset")
+
+    def _load(self) -> pd.DataFrame:
+        df = ...  # build / load your dataframe
+        df["target"] = ...  # ensure target exists
+        return df
 ## Test Settings
 
 The proposed algorithm serves as a foundation for multiple method variants differing in:

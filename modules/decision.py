@@ -1,10 +1,6 @@
 from tabpfn import TabPFNClassifier
 import pandas as pd
-#from huggingface_hub import login
 import numpy as np
-
-
-#login(token="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")
 
 class maximalPPP: #checked
     def __init__(self, Classifier):
