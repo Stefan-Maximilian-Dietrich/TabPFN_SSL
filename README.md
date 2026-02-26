@@ -41,14 +41,14 @@ To mitigate this issue, Bayesian PLS considers uncertainty over model parameters
 A principled Bayesian criterion for selecting a candidate pseudo-labeled instance $(x_i, \hat{y}_i)$ is the **Pseudo Posterior Predictive (PPP)**:
 
 $$
-p\bigl(D \cup (x_i,\hat{y}_i)\mid D\bigr)
+p(D \cup (x_i, \hat{y}_i) \mid D)
 =
 \int_\Theta
-p\bigl(D \cup (x_i,\hat{y}_i)\mid \theta\bigr)
-\, p(\theta\mid D)\, d\theta
+p(D \cup (x_i, \hat{y}_i) \mid \theta)
+\, p(\theta \mid D)\, d\theta
 $$
 
-Here, $D$ denotes the labeled dataset and $p(\theta \mid D)$ the posterior over parameters.  
+Here, $D$ denotes the labeled dataset and $p(\theta \mid D)$ the posterior over parameters.
 
 Intuitively, the PPP measures how consistent a candidate pseudo-label is across plausible model parameterizations, rather than trusting a single point estimate.
 
@@ -72,8 +72,7 @@ $$
 
 A neural network $q_\theta(y \mid x, D)$ is trained over tasks $D \sim p(D)$ to approximate this predictive distribution.
 
-**TabPFN** specializes this idea for small tabular classification problems.  
-It performs in-context prediction without gradient-based retraining, hyperparameter tuning, or cross-validation, while maintaining strong empirical performance in its target regime.
+**TabPFN** specializes this idea for small tabular classification problems. It performs in-context prediction without gradient-based retraining or hyperparameter tuning, while maintaining strong empirical performance in its target regime.
 
 ---
 
@@ -82,7 +81,7 @@ It performs in-context prediction without gradient-based retraining, hyperparame
 A key theoretical insight is that, under a suitable formulation, the PPP selection criterion reduces to evaluating the posterior predictive probability:
 
 $$
-p\bigl(D \cup (x_i,\hat{y}_i)\mid D\bigr)
+p(D \cup (x_i, \hat{y}_i) \mid D)
 =
 p(\hat{y}_i \mid x_i, D)
 $$
