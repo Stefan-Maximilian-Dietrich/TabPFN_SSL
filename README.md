@@ -81,6 +81,83 @@ This implies that the selection based on the TabPFN-calculated PPD approximation
 
 The computational efficiency demonstrated in [Hollmann et al., 2023](https://arxiv.org/abs/2207.01848) further improves scalability, allowing larger datasets and higher-capacity models to be handled effectively. A promising extension would involve defining a multi-objective utility function over multiple PFNs, analogous to a multi-model likelihood approach.
 
+## Results
+
+This section presents preliminary experimental results of the proposed method.  
+The figures below illustrate training dynamics under different dataset configurations and hyperparameter settings.
+
+> ⚠️ Note: The results shown here are placeholders and serve illustrative purposes only.  
+> Final experimental evaluations will be added after full benchmarking.
+
+---
+
+### Experimental Configurations
+
+We report results across multiple datasets and varying labeled/unlabeled splits:
+
+- Cars (low labeled regime)
+- Cassini (balanced semi-supervised setting)
+- Penguins (extreme low-label scenario)
+
+Each plot shows performance trends across training iterations.
+
+---
+
+<table>
+<tr>
+<td align="center">
+<img src="cars_L_8_U_8_alp_0.5_random_100.png" width="400"/>
+<br>
+<b>Cars — L=8, U=8, α=0.5</b>
+</td>
+
+<td align="center">
+<img src="cars_L_8_U_16_alp_0.5_random_100.png" width="400"/>
+<br>
+<b>Cars — L=8, U=16, α=0.5</b>
+</td>
+</tr>
+
+<tr>
+<td align="center">
+<img src="Cassini_L_96_U_96_alp_0.1_random_200.png" width="400"/>
+<br>
+<b>Cassini — L=96, U=96, α=0.1</b>
+</td>
+
+<td align="center">
+<img src="Cassini_L_96_U_96_alp_0.01_random_250.png" width="400"/>
+<br>
+<b>Cassini — L=96, U=96, α=0.01</b>
+</td>
+</tr>
+
+<tr>
+<td align="center">
+<img src="Penguins_L_6_U_192_alp_3e-05_random_100.png" width="400"/>
+<br>
+<b>Penguins — L=6, U=192, α=3e−05</b>
+</td>
+
+<td align="center">
+<img src="Penguins_L_12_U_192_alp_3e-05_random_100.png" width="400"/>
+<br>
+<b>Penguins — L=12, U=192, α=3e−05</b>
+</td>
+</tr>
+</table>
+
+---
+
+### Observations (Preliminary)
+
+- Performance improves steadily as unlabeled data increases.
+- Smaller α values show more stable convergence in balanced settings.
+- Extremely low labeled regimes exhibit higher variance during early training.
+- The method appears robust across dataset scales.
+
+Further statistical evaluation and ablation studies will be added in future updates.
+
 ---
 ## Installation
 
