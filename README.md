@@ -458,6 +458,8 @@ The use of large language models (LLMs) in the preparation of this work is outli
 
 
 
+
+Proper citation is appreciated if this project contributes to published or submitted work.
 ---
 
 ## Citation
@@ -471,8 +473,7 @@ If you use this repository in academic work, research projects, or derivative im
   year   = {2026},
 }
 ```
-
-Proper citation is appreciated if this project contributes to published or submitted work.
+---
 ## License
 
 This project is licensed under the MIT License.
