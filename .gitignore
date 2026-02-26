@@ -1,21 +1,74 @@
-# Slurm outputs
+# =========================
+# Slurm / Cluster Outputs
+# =========================
 logs/
 error/
 results/
 Results/
 *.out
 *.err
+slurm-*.out
 
+# =========================
+# Experiment Outputs
+# =========================
+*.csv
+*.tsv
+*.log
+*.json
+*.pkl
+*.pt
+*.pth
+
+# =========================
 # Python
+# =========================
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+*.pyc.*
+*.so
+
+# Virtual environments
 .venv/
 venv/
+env/
 
-# Secrets / tokens
+# =========================
+# Build / Packaging
+# =========================
+build/
+dist/
+*.egg-info/
+*.egg
+pip-wheel-metadata/
+
+# =========================
+# uv
+# =========================
+# (uv.lock MUSS committed werden!)
+# uv.lock
+
+# =========================
+# Jupyter
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# macOS
+# =========================
+.DS_Store
+
+# =========================
+# Secrets / Tokens
+# =========================
 .env
 .env.*
 secrets/
-
-
-.vscode

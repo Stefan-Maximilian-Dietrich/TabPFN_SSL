@@ -14,8 +14,12 @@ scripts/smoke_local.py
 tabpfn_ssl.egg-info/PKG-INFO
 tabpfn_ssl.egg-info/SOURCES.txt
 tabpfn_ssl.egg-info/dependency_links.txt
+tabpfn_ssl.egg-info/requires.txt
 tabpfn_ssl.egg-info/top_level.txt
+tests/test_classifier.py
 tests/test_data_sanity.py
+tests/test_datasets.py
+tests/test_decision.py
 tests/test_functions_more.py
 tests/test_functions_unit.py
 tests/test_local_smoke_run.py

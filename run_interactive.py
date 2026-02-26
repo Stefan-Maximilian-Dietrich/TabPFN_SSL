@@ -67,11 +67,13 @@ def ask_exp_list():
     print("Ungültig. Ich nehme 'all' (0..10).")
     return list(range(0, 11))
 
+
 def run_local(task_file: Path, exp_nums: list[int], num_seeds: int, base_seed: int):
     print("\n[LOCAL] Starte lokale Ausführung (sequenziell, ohne Slurm).")
     for exp in exp_nums:
         cmd = [
-            sys.executable, str(MODEL_RUNNER),
+            sys.executable,
+            "-m", "scripts.model_runner",
             "--task", str(task_file.relative_to(REPO)),
             "--num-seeds", str(num_seeds),
             "--base-seed", str(base_seed),

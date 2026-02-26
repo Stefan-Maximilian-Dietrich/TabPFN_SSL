@@ -3,7 +3,7 @@ import math
 import argparse
 
 import torch
-from model_train import run_one_seed
+from scripts.model_train import run_one_seed
 
 import importlib.util
 from pathlib import Path

@@ -1,6 +1,15 @@
 Metadata-Version: 2.4
 Name: tabpfn-ssl
 Version: 0.1.0
-Requires-Python: >=3.10
+Requires-Python: >=3.11
 License-File: LICENSE
+Requires-Dist: numpy<2
+Requires-Dist: pandas>=2.2
+Requires-Dist: scikit-learn>=1.4
+Requires-Dist: python-dotenv>=1.0
+Requires-Dist: tqdm
+Requires-Dist: pyyaml
+Requires-Dist: torch==2.2.2; sys_platform == "darwin" and platform_machine == "x86_64"
+Requires-Dist: torch>=2.3; sys_platform != "darwin" or platform_machine != "x86_64"
+Requires-Dist: tabpfn==6.4.1
 Dynamic: license-file
