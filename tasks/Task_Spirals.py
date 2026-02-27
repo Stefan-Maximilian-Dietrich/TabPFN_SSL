@@ -58,5 +58,5 @@ Experiments = [
     
 ]
 
-print("Anzahl Experimente:", len(Experiments))
+print("Number of experiments:", len(Experiments))
 

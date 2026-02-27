@@ -8,7 +8,6 @@ import scripts.functions as fun
 
 
 class SklearnLogReg:
-    """Minimaler Classifier-Wrapper, kompatibel mit deinem SSL-Code."""
     name = "sklearn_logreg"
 
     def __init__(self):
@@ -26,7 +25,6 @@ class SklearnLogReg:
 
 
 class FirstDecision:
-    """Deterministische Decision: wählt immer das erste Pseudo-Sample."""
     def __init__(self, _Classifier):
         self.name = "first"
 
@@ -34,12 +32,11 @@ class FirstDecision:
         return 0
 
 
-# Ein einziges Mini-Experiment: sehr klein, läuft in Sekunden
 Experiments = [
     {
-        "n": 20,                    # labeled
-        "m": 10,                    # unlabeled
-        "Data": ds.BreastCancer(),  # lokal, schnell :contentReference[oaicite:7]{index=7}
+        "n": 20,                    
+        "m": 10,                    
+        "Data": ds.BreastCancer(),  
         "Sampler": fun.upsample,
         "Evaluation": fun.confusion,
         "Classifier": SklearnLogReg(),
