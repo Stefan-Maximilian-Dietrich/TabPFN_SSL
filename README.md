@@ -423,64 +423,30 @@ evaluation/plots/
 
 The generated figures correspond exactly to the plots shown in the **Results** section of this repository.
 ---
-## Modular Architecture & Extensibility
+# Modular Architecture & Extensibility
 
 ```mermaid
 flowchart LR
 
 %% =====================================
-%% CLASSIFIER (4 Inputs)
+%% CORE MODULES (large & rounded)
 %% =====================================
 
-A1((A1))
-A2((A2))
-A3((A3))
-A4((A4))
+CL(["<br/><br/>Classifier Module<br/><br/><br/>"])
+DR(["<br/><br/>Decision Rule Module<br/><br/><br/>"])
+DATA(["<br/><br/>Data Module<br/><br/><br/>"])
+T(["<br/><br/>Tasks<br/><br/><br/>"])
 
-CL([Classifier])
+CL -.-> DR
 
-A1 --- CL
-A2 --- CL
-A3 --- CL
-A4 --- CL
-
-
-%% =====================================
-%% DECISION RULE (oben)
-%% =====================================
-
-R1((R1))
-R2((R2))
-
-DR([Decision Rule])
-
-R1 --- DR
-R2 --- DR
-
-%% Gestrichelter Pfeil
-CL -.-> R1
-
-
-%% =====================================
-%% DATA (unten)
-%% =====================================
-
-D1((D1))
-D2((D2))
-
-DATA([Data])
-
-D1 --- DATA
-D2 --- DATA
-
-
-%% =====================================
-%% TASKS
-%% =====================================
-
-CL --> T([Tasks])
+CL --> T
 DR --> T
 DATA --> T
+
+
+%% =====================================
+%% TASK PARAMETERS
+%% =====================================
 
 TK1((k))
 TK2((m))
@@ -490,11 +456,11 @@ TK2 --> T
 
 
 %% =====================================
-%% SSL BLOCK (inkl. α und β)
+%% SSL BLOCK
 %% =====================================
 
 subgraph SSL Pipeline
-    SSL[SSL Engine]
+    SSL["<br/>SSL Engine<br/>"]
     S1((α))
     S2((β))
 
@@ -524,7 +490,6 @@ SSL --> TAB
 
 G --> EP[Explore Platform]
 TAB --> EX[Explore Excel]
-
 ```
 
 This project is intentionally **modular**: you can extend or swap components without touching the rest of the system.  
