@@ -199,7 +199,7 @@ The project can be executed in two different modes:
 
 ---
 
-### Interactive Runner (default)
+### Interactive Runner
 
 To start the interactive interface, run:
 
@@ -290,15 +290,54 @@ The selected experiments are then executed sequentially according to the chosen 
 
 ---
 
-### Evaluation Mode (placeholder)
+### Evaluation Mode
 
-The repository also provides an evaluation entry point:
+Evaluation is handled via an interactive evaluation script. Run:
 
 ```bash
-uv run python run_evaluation.py
+uv run python evaluate_interactive.py
 ```
 
-> Detailed documentation for evaluation mode will be added here.
+After starting the script, you can choose between two evaluation outputs:
+
+```
+Willst du eine Tabulare Übersicht oder eine Grafik machen?
+  1) Tabulare Übersicht
+  2) Grafik (Accuracy vs. Iteration)
+Auswahl (1/2):
+```
+
+---
+
+#### 1) Tabular Summary
+
+If you select **Tabulare Übersicht**, the system prints a concise summary **for each experiment configuration** (e.g., dataset, labeled/unlabeled set size, classifier, decision function). A typical output looks like:
+
+```
+dataset:              Spirals
+labled data:          10
+unlabled data:        60
+classifier:           classifier_TabPFNClassifier
+decision function:    supervised
+seeds getestet:       100
+accuracy am anfang:   0.596116
+maximale accuracy:    0.596116
+accuracy am ende:     0.596116
+```
+
+In addition, the evaluation results are written/updated in the folder:
+
+- `evaluation/` (e.g. a summary sheet such as `summary_results.csv`)
+
+---
+
+#### 2) Plots (Accuracy vs. Iteration)
+
+If you select **Grafik**, the script shows which plots can be created. You can then select the plots you want, and the resulting figures are saved as `.png` files under:
+
+- `evaluation/plots/`
+
+> **Note:** Plot generation is only performed if the experiments are complete, i.e., if every method was run with the same number of runs/seeds (so that curves are comparable).
 ## Algorithmic Framework
 
 **Pseudo-Label Selection with PFN**
