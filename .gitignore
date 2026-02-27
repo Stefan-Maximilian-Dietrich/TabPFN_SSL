@@ -74,3 +74,9 @@ coverage.xml
 .env
 .env.*
 secrets/
+
+# --- Evaluation Outputs (auto-generated) ---
+
+evaluation/summary_results.csv
+evaluation/summary_results_colored.html
+evaluation/plots/

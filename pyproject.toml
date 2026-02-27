@@ -14,15 +14,13 @@ dependencies = [
     "python-dotenv>=1.0",
     "tqdm",
     "pyyaml",
-
     # Intel-macOS (x86_64): letzte Wheel-Serie
     "torch==2.2.2; sys_platform == 'darwin' and platform_machine == 'x86_64'",
-
     # Alle anderen Plattformen (macOS arm64, Linux, Windows):
     "torch>=2.3; (sys_platform != 'darwin') or (platform_machine != 'x86_64')",
-
     # TabPFN: nimm die Version, die bei dir funktioniert
     "tabpfn==6.4.1",
+    "matplotlib>=3.10.8",
 ]
 
 [tool.setuptools]
