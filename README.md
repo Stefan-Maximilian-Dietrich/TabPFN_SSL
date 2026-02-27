@@ -190,34 +190,26 @@ Follow the steps below to set up the project locally:
    uv pip install -e .
    ```
 
-## Usage
+# How to Use
 
-The project can be executed in two different modes:
+The repository supports two execution modes:
 
-1. **Interactive experiment execution**
-2. **Evaluation mode**
+1. **Local execution** (default)
+2. **Cluster execution via LRZ AI Systems (SLURM-based)**
+
+Evaluation is handled separately and described at the end of this section.
 
 ---
 
-### Interactive Runner
+## Local Execution 
 
-To start the interactive interface, run:
+To run experiments locally, use the interactive runner:
 
 ```bash
 uv run python run_interactive.py
 ```
 
-> **Note:** This is the default execution mode if the repository is not running inside the LRZ AI Cloud environment.
-
-After launching the runner, you will see an overview of the current repository and execution mode:
-
-```
-======================================
- TabPFN_SSL - Interaktiver Runner
-======================================
-Repo:  <path-to-repository>
-Mode:  local (auto_detect_lrz=False)
-```
+> This is the standard execution mode if the repository is not running inside the LRZ AI Systems environment.
 
 ---
 
@@ -284,14 +276,72 @@ For example:
 
 If no value is entered, the default values are used.
 
----
-
 The selected experiments are then executed sequentially according to the chosen configuration.
 
 ---
-### Evaluation Mode
 
-Evaluation is handled via an interactive evaluation script. Run:
+## Cluster Execution (LRZ AI Systems via SSH)
+
+Experiments can also be executed on the **LRZ AI Systems cluster**.
+
+LRZ provides GPU-based compute systems accessible via SSH:
+https://doku.lrz.de/1-access-10746642.html
+
+Overview of LRZ AI Systems:
+https://doku.lrz.de/ai-systems-11484278.html
+
+Cluster jobs are managed using **SLURM**, a workload manager for scheduling compute jobs on distributed systems:
+https://doku.lrz.de/5-slurm-1897076524.html
+
+SLURM allocates resources (GPUs, CPUs, memory, runtime) and schedules jobs across available compute nodes.
+
+---
+
+## How It Works
+
+From the user interface perspective, execution behaves similarly to the local runner.
+
+However, instead of running experiments directly on your local machine, the system submits jobs to SLURM using the script:
+
+```
+train_seeds_multinode.slurm
+```
+
+This script defines the compute resources and scheduling parameters.
+
+An example configuration:
+
+```
+#SBATCH --nodes=1
+#SBATCH --gres=gpu:1
+#SBATCH --partition=lrz-hgx-a100-80x4
+#SBATCH --qos=gpu
+#SBATCH --time=02:00:00
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=64G
+```
+
+Key parameters:
+
+- `--partition=lrz-hgx-a100-80x4` selects the GPU system (A100 nodes).
+- `--gres=gpu:1` requests one GPU.
+- `--nodes` allows scaling across multiple nodes.
+- `--time` defines the maximum runtime.
+
+This setup enables:
+
+- Parallel execution of multiple seeds
+- Multi-node execution
+- Multi-GPU scaling
+- Large-scale reproducible experimentation
+
+By distributing seeds across multiple nodes and GPUs, experiments can be executed significantly faster than in local mode.
+
+---
+
+## Evaluation Mode
+
+Evaluation is handled via:
 
 ```bash
 uv run python evaluate_interactive.py
@@ -308,11 +358,11 @@ Selection (1/2):
 
 ---
 
-#### 1) Tabular Summary
+## 1) Tabular Summary
 
-If you select **Tabular Summary**, the system prints a concise overview **for each experiment configuration** (e.g., dataset, number of labeled/unlabeled samples, classifier, decision function).
+If you select **Tabular Summary**, the system prints a concise overview for each experiment configuration.
 
-A typical output looks as follows:
+Example output:
 
 ```
 dataset:              Spirals
@@ -326,24 +376,24 @@ maximum accuracy:     0.814996
 accuracy at end:      0.784460
 ```
 
-In addition, the evaluation results are written to (or updated in):
+Results are written to:
 
-- `evaluation/summary_results.csv`
-
-This file aggregates the results across all experiment configurations.
+```
+evaluation/summary_results.csv
+```
 
 ---
 
-#### 2) Plots (Accuracy vs. Iteration)
+## 2) Plots (Accuracy vs. Iteration)
 
-If you select **Plot**, the script displays which plots can currently be generated.  
-You may then select the desired plots interactively.
+If you select **Plot**, the script displays which plots can be generated.  
+Selected plots are saved as `.png` files in:
 
-The generated figures are saved as `.png` files in:
+```
+evaluation/plots/
+```
 
-- `evaluation/plots/`
-
-> **Note:** Plot generation is only performed if all experiment configurations are complete — meaning that each method was evaluated with the same number of runs/seeds to ensure fair comparability.
+> Plot generation is only performed if all experiment configurations are complete — meaning that each method was evaluated with the same number of runs/seeds to ensure comparability.
 
 The generated plots correspond to the figures shown in the **Results** section of this repository.
 ---
