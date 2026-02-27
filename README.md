@@ -5,36 +5,48 @@
 [![codecov](https://codecov.io/gh/Stefan-Maximilian-Dietrich/TabPFN_SSL/branch/main/graph/badge.svg)](https://app.codecov.io/github/stefan-maximilian-dietrich/tabpfn_ssl)
 # Bayesian Pseudo-Label Selection with Prior-Data Fitted Networks
 
-**Project proposal & research repository**
+**Research Repository**
 
-Author: **Stefan Maximilian Dietrich**
-Date: **October 2025**
+This project was developed as part of the course **Applied Deep Learning**  
+and supervised by **Prof. Dr. David Rügamer**.
 
----
-
-## 📌 Table of Contents
-
-* [Bayesian PLS in Semi-Supervised Learning](#bayesian-pls-in-semi-supervised-learning)
-* [Prior-Data Fitted Networks (PFN)](#prior-data-fitted-networks-pfn)
-* [Semi-Supervised Learning with PFNs](#semi-supervised-learning-with-pfns)
-* [Related Work](#related-work)
-* [Algorithmic Framework](#algorithmic-framework)
-* [Test Settings](#test-settings)
-* [Results](#results)
-* [Disclaimer on the Use of LLMs](#disclaimer-on-the-use-of-llms)
+Author: **Stefan Maximilian Dietrich**  
+Date: **February 2026**
 
 ---
-flowchart TD
-    A[Input Data] --> B[Preprocessing]
-    B --> C[Model]
-    C --> D[Prediction]
-## Theoretical Background
+# Table of Contents
+
+- [Theoretical Background](#theoretical-background)
+  - [Bayesian Pseudo-Label Selection in SSL](#1-bayesian-pseudo-label-selection-in-ssl)
+  - [Prior-Data Fitted Networks and TabPFN](#2-prior-data-fitted-networks-and-tabpfn)
+  - [SSL with PFNs: Decision-Theoretic Selection](#3-ssl-with-pfns-decision-theoretic-selection-via-posterior-predictives)
+
+- [Results](#results)
+  - [Experimental Configurations](#experimental-configurations)
+  - [Observations](#observations)
+
+- [Installation](#installation)
+
+- [How to Use](#how-to-use)
+  - [Local Execution](#local-execution-default)
+  - [Cluster Execution (LRZ AI Systems via SLURM)](#cluster-execution-lrz-ai-systems-via-slurm)
+  - [Evaluation Mode](#evaluation-mode)
+
+- [Documentation (Modular Architecture & Extensibility)](#dokumentation-modular-architecture--extensibility)
+  - [Datasets](#datasets-basedataset--concrete-dataset-classes)
+  - [Classifiers](#classifiers-unified-wrapper-interface)
+  - [Decision Rules](#decision-rules-pseudo-label-selection-logic)
+  - [Tasks](#tasks-experiment-definitions)
+
+- [Citation and License](#citation-and-licennce)
+---
+# Theoretical Background
 
 This repository builds on a decision-theoretic perspective on semi-supervised learning (SSL), combining Bayesian pseudo-label selection with Prior-Data Fitted Networks (PFNs), in particular TabPFN.
 
 ---
 
-### 1) Bayesian Pseudo-Label Selection in SSL
+## 1) Bayesian Pseudo-Label Selection in SSL
 
 Obtaining labeled data is often costly, time-consuming, and dependent on expert knowledge, whereas unlabeled data are typically abundant and easy to collect. This imbalance has led to the rise of semi-supervised learning (SSL), with self-training (or pseudo-labeling) being one of the most widely used approaches [McClosky et al., 2006](https://aclanthology.org/N06-1020/) [Lee, 2013](https://www.researchgate.net/publication/280581078) [Shi et al., 2018](https://www.researchgate.net/publication/328123705). Self-training iteratively adds pseudo-labeled instances to the training set based on predictions from a model trained on labeled data. A crucial step in this process is pseudo-label selection (PLS), which determines which pseudo-labeled instances to include.\footnote{Importantly, PLS refers to the selection of pseudo-labeled instances, not the pseudo-labels themselves.}
 
@@ -54,7 +66,7 @@ In[Rodemann et al., 2023A](https://arxiv.org/abs/2302.08883) and [Dietrich et al
 
 ---
 
-### 2) Prior-Data Fitted Networks and TabPFN
+## 2) Prior-Data Fitted Networks and TabPFN
 
 Prior-Data Fitted Networks (PFNs), as described in [Müller et al., 2022](https://arxiv.org/abs/2112.10510), are neural networks that directly approximate Bayesian inference by simulating the posterior predictive distribution (PPD) of a given prior. Formally, the PPD integrates over all possible hypotheses $\varphi \in \Phi$ of the data-generating process:
 
@@ -76,7 +88,7 @@ This motivates the use of TabPFN to compute the posterior predictive distributio
 
 ---
 
-### 3) SSL with PFNs: Decision-Theoretic Selection via Posterior Predictives
+## 3) SSL with PFNs: Decision-Theoretic Selection via Posterior Predictives
 As stated in the second theorem in [Rodemann et al., 2023A](https://arxiv.org/abs/2302.08883), for our purposes it holds that:
 
 $$ p(D \cup (x_i, \hat{y}_i) \mid D) = p(\hat{y}_i \mid x_i, D) $$
@@ -85,7 +97,7 @@ This implies that the selection based on the TabPFN-calculated PPD approximation
 
 The computational efficiency demonstrated in [Hollmann et al., 2023](https://arxiv.org/abs/2207.01848) further improves scalability, allowing larger datasets and higher-capacity models to be handled effectively. A promising extension would involve defining a multi-objective utility function over multiple PFNs, analogous to a multi-model likelihood approach.
 
-## Results
+# Results
 
 This section presents preliminary experimental results of the proposed method.  
 The figures below illustrate training dynamics under different dataset configurations and hyperparameter settings.
@@ -95,7 +107,7 @@ The figures below illustrate training dynamics under different dataset configura
 
 ---
 
-### Experimental Configurations
+## Experimental Configurations
 
 We report results across multiple datasets and varying labeled/unlabeled splits:
 
@@ -105,6 +117,7 @@ We report results across multiple datasets and varying labeled/unlabeled splits:
 
 Each plot shows performance trends across training iterations.
 
+## Results
 ---
 
 <table>
@@ -153,7 +166,7 @@ Each plot shows performance trends across training iterations.
 
 ---
 
-### Observations (Preliminary)
+## Observations
 
 - Performance improves steadily as unlabeled data increases.
 - Smaller α values show more stable convergence in balanced settings.
@@ -163,7 +176,7 @@ Each plot shows performance trends across training iterations.
 Further statistical evaluation and ablation studies will be added in future updates.
 
 ---
-## Installation
+# Installation
 
 This repository relies on [uv](https://docs.astral.sh/uv/) for managing the virtual environment and project dependencies.  
 Please ensure that `uv` is installed before continuing.
@@ -190,38 +203,41 @@ Follow the steps below to set up the project locally:
    uv pip install -e .
    ```
 
-## Usage
+# How to Use
 
-The project can be executed in two different modes:
+The repository supports both local execution and cluster-based execution (LRZ AI Systems).  
+From a user perspective, the workflow is identical in both cases — the same script is used and the same interactive interface appears.
 
-1. **Interactive experiment execution**
-2. **Evaluation mode**
+> **Important Note on Experiments and Subexperiments**  
+> An *experiment* is defined by the configuration:
+> - Dataset  
+> - Number of labeled samples  
+> - Number of unlabeled samples  
+> - Classifier  
+>
+> However, during execution, each experiment is internally split into **subexperiments**, one for each decision method.  
+>
+> This design is intentional and improves efficiency:
+> - Some methods require GPU acceleration.
+> - Others can be executed efficiently on CPUs.
+>
+> By splitting experiments into subexperiments, resource allocation can be optimized automatically.
 
 ---
 
-### Interactive Runner (default)
+### Local Execution (Default)
 
-To start the interactive interface, run:
+To start experiments locally:
 
 ```bash
 uv run python run_interactive.py
 ```
 
-> **Note:** This is the default execution mode if the repository is not running inside the LRZ AI Cloud environment.
-
-After launching the runner, you will see an overview of the current repository and execution mode:
-
-```
-======================================
- TabPFN_SSL - Interaktiver Runner
-======================================
-Repo:  <path-to-repository>
-Mode:  local (auto_detect_lrz=False)
-```
+This is the default mode when running outside the LRZ AI Systems environment.
 
 ---
 
-### 1. Select a Task Sheet
+#### 1) Select a Task Sheet
 
 You will be prompted to choose one of the available task sheets:
 
@@ -233,17 +249,14 @@ Welches Task-Sheet möchtest du ausführen?
 Auswahl (1-3) [default 1]:
 ```
 
-Enter the corresponding number (e.g. `3` for `toy_examples.py`).  
+Enter the corresponding number.  
 If no input is provided, the default option is selected.
-
-> The structure of task sheets and the procedure for adding new experiments is explained in detail in the section  
-> **Modules → Tasks** of this README.
 
 ---
 
-### 2. Select Experiments
+#### 2) Select Experiments
 
-Next, specify which experiment(s) to execute:
+Specify which experiment(s) to execute:
 
 ```
 Experiment wählen: Zahl (z.B. 3), Range (z.B. 0-10) oder 'all':
@@ -251,135 +264,214 @@ Experiment wählen: Zahl (z.B. 3), Range (z.B. 0-10) oder 'all':
 
 Supported formats:
 
-- Single experiment: `3`
-- Range of experiments: `0-10`
-- All experiments: `all`
-
-Example:
-```
-1-10
-```
+- `3` (single experiment)
+- `0-10` (range)
+- `all`
 
 ---
 
-### 3. Configure Seeds
+#### 3) Configure Seeds
 
-You will then be asked to define the seed configuration:
+You will then define the seed configuration:
 
 ```
 NUM_SEEDS [default 5]:
 BASE_SEED [default 0]:
 ```
 
-- `NUM_SEEDS` determines how many times an experiment is repeated.
-- The seeds used range from `BASE_SEED` up to  
-  `BASE_SEED + NUM_SEEDS - 1`.
+- `NUM_SEEDS` determines how many times the experiment is repeated.
+- Seeds range from:
+  
+  ```
+  BASE_SEED  ...  BASE_SEED + NUM_SEEDS - 1
+  ```
 
-For example:
+Example:
 
 - `BASE_SEED = 0`
 - `NUM_SEEDS = 5`
 
-→ Seeds `0, 1, 2, 3, 4` will be executed.
+→ Seeds `0, 1, 2, 3, 4`
 
-If no value is entered, the default values are used.
-
----
-
-The selected experiments are then executed sequentially according to the chosen configuration.
+Experiments (and their subexperiments) are executed sequentially in local mode.
 
 ---
 
-### Evaluation Mode (placeholder)
+## Cluster Execution (LRZ AI Systems via SLURM)
 
-The repository also provides an evaluation entry point:
+Access to the LRZ AI Systems is available via SSH:
+
+- Access documentation: https://doku.lrz.de/1-access-10746642.html  
+- AI Systems overview: https://doku.lrz.de/ai-systems-11484278.html  
+- SLURM documentation: https://doku.lrz.de/5-slurm-1897076524.html  
+
+### Important: The Interface Is Identical
+
+Cluster execution uses the **same script**:
 
 ```bash
-uv run python run_evaluation.py
+uv run python run_interactive.py
 ```
 
-> Detailed documentation for evaluation mode will be added here.
-## Algorithmic Framework
+The interaction flow (task selection, experiment selection, seed configuration) is exactly the same.
 
-**Pseudo-Label Selection with PFN**
+The only difference lies in the execution backend:
+
+- **Local mode:** subexperiments are executed sequentially.
+- **Cluster mode:** each subexperiment is submitted as a separate SLURM job.
+
+Each job is dispatched via SSH to the cluster and scheduled automatically.
+
+---
+
+### What Is SLURM?
+
+SLURM is a workload manager used to distribute computational jobs across compute nodes in a cluster.
+
+It:
+- Allocates GPUs, CPUs, memory and runtime
+- Queues jobs
+- Schedules execution across nodes
+- Enables parallel execution
+
+---
+
+### Resource Configuration
+
+Cluster jobs are defined in:
 
 ```
-Input:
-  Labeled data 𝓓
-  Unlabeled data 𝓤
+train_seeds_multinode.slurm
+```
 
-While stopping criterion not met:
-  Fit classifier on 𝓓
-  Predict pseudo-labels for all x ∈ 𝓤
-  Compute PPP(x, ŷ(x)) using TabPFN
-  Select a* = argmax PPP
-  Update:
-    𝓓 ← 𝓓 ∪ a*
-    𝓤 ← 𝓤 \ a*
+Example configuration:
 
-Output:
-  Final fitted classifier
+```
+#SBATCH --nodes=1
+#SBATCH --gres=gpu:1
+#SBATCH --partition=lrz-hgx-a100-80x4
+#SBATCH --qos=gpu
+#SBATCH --time=02:00:00
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=64G
+```
+
+Key parameter:
+
+```
+--partition=lrz-hgx-a100-80x4
+```
+
+This selects the A100 GPU nodes.
+
+---
+
+### Why This Is Powerful
+
+Because each subexperiment is submitted as an individual job:
+
+- Seeds can be distributed across multiple nodes.
+- GPU-heavy methods run on GPUs.
+- CPU-friendly methods run efficiently without wasting GPU resources.
+- Large-scale experiments can run in parallel.
+
+This allows substantial speedups compared to purely sequential local execution.
+
+---
+
+## Evaluation Mode
+
+Evaluation is handled separately:
+
+```bash
+uv run python evaluate_interactive.py
+```
+
+You can choose between:
+
+```
+1) Tabular Summary
+2) Plot (Accuracy vs. Iteration)
 ```
 
 ---
-## Modular Architecture & Extensibility
+
+### Tabular Summary
+
+Provides an aggregated summary per experiment configuration.
+
+Example:
+
+```
+dataset:              Spirals
+labeled data:         10
+unlabeled data:       100
+classifier:           classifyer_KNNClassifier
+decision function:    maximalPPP
+seeds tested:         33
+accuracy at start:    0.648873
+maximum accuracy:     0.814996
+accuracy at end:      0.784460
+```
+
+Results are stored in:
+
+```
+evaluation/summary_results.csv
+```
+
+---
+
+### Plots (Accuracy vs. Iteration)
+
+Plots can be generated interactively.
+
+They are saved to:
+
+```
+evaluation/plots/
+```
+
+> Plots are generated only if all experiment configurations are complete (i.e., all methods were executed with the same number of seeds).
+
+The generated figures correspond exactly to the plots shown in the **Results** section of this repository.
+---
+# Dokumentation (Modular Architecture & Extensibility)
+This project is intentionally **modular**: you can extend or swap components without touching the rest of the system.  
+The four core building blocks are:
+
+1. **Datasets** (`data.py`) – provide data as a `pandas.DataFrame`
+2. **Classifiers** (`classifier.py`) – provide a unified training/inference API
+3. **Decision Rules** (`decision.py`) – decide *which* pseudo-labeled sample to select next (semi-supervised selection logic)
+4. **Tasks** (`tasks/`) – define and orchestrate experiments by combining datasets, classifiers, and decision rules into one or more **experiments** (and their **subexperiments**)
+
+A key convention across the entire codebase is the **target column name**:
+
+- The label column **must** be named: `target`
+- All remaining columns are treated as features
 
 ```mermaid
 flowchart LR
 
 %% =====================================
-%% CLASSIFIER (4 Inputs)
+%% CORE MODULES (large & rounded)
 %% =====================================
 
-A1((A1))
-A2((A2))
-A3((A3))
-A4((A4))
+CL(["<br/><br/>Classifier Module<br/><br/><br/>"])
+DR(["<br/><br/>Decision Rule Module<br/><br/><br/>"])
+DATA(["<br/><br/>Data Module<br/><br/><br/>"])
+T(["<br/><br/>Tasks<br/><br/><br/>"])
 
-CL([Classifier])
+CL -.-> DR
 
-A1 --- CL
-A2 --- CL
-A3 --- CL
-A4 --- CL
-
-
-%% =====================================
-%% DECISION RULE (oben)
-%% =====================================
-
-R1((R1))
-R2((R2))
-
-DR([Decision Rule])
-
-R1 --- DR
-R2 --- DR
-
-%% Gestrichelter Pfeil
-CL -.-> R1
-
-
-%% =====================================
-%% DATA (unten)
-%% =====================================
-
-D1((D1))
-D2((D2))
-
-DATA([Data])
-
-D1 --- DATA
-D2 --- DATA
-
-
-%% =====================================
-%% TASKS
-%% =====================================
-
-CL --> T([Tasks])
+CL --> T
 DR --> T
 DATA --> T
+
+
+%% =====================================
+%% TASK PARAMETERS
+%% =====================================
 
 TK1((k))
 TK2((m))
@@ -389,11 +481,11 @@ TK2 --> T
 
 
 %% =====================================
-%% SSL BLOCK (inkl. α und β)
+%% SSL BLOCK
 %% =====================================
 
 subgraph SSL Pipeline
-    SSL[SSL Engine]
+    SSL["<br/>SSL Engine<br/>"]
     S1((α))
     S2((β))
 
@@ -423,177 +515,362 @@ SSL --> TAB
 
 G --> EP[Explore Platform]
 TAB --> EX[Explore Excel]
-
 ```
-
-This project is intentionally **modular**: you can extend or swap components without touching the rest of the system.  
-The three core building blocks are:
-
-1. **Datasets** (`data.py`) – provide data as a `pandas.DataFrame`
-2. **Classifiers** (`classifier.py`) – provide a unified training/inference API
-3. **Decision Rules** (`decision.py`) – decide *which* pseudo-labeled sample to select next (semi-supervised selection logic)
-
-A key convention across the entire codebase is the **target column name**:
-
-- The label column **must** be named: `target`
-- All remaining columns are treated as features
 
 ---
 
 ## Datasets (`BaseDataset` + concrete dataset classes)
 
-### Dataset contract
-A dataset is a class inheriting from `BaseDataset` and implementing:
+A dataset is implemented as a class inheriting from `BaseDataset`.  
+Each dataset encapsulates data loading, formatting, and metadata definition in a consistent and reproducible way.
 
-- `__init__(...)`: call `super().__init__(name="...")`
-- `_load(self) -> pd.DataFrame`: return a DataFrame containing all features **and** a `target` column
+### Required Structure
 
-`BaseDataset.__call__()` caches the loaded DataFrame and standardizes `target` by converting it to categorical codes `0,1,2,...` (and stores original categories in `df.attrs["target_categories"]`).
+A custom dataset must implement:
 
-### Already implemented datasets
-The following dataset classes are available out-of-the-box:
+- `__init__(...)`  
+  Call `super().__init__(name="...")` to register the dataset name.
 
-- `BreastCancer`
-- `Iris`
-- `Wine`
-- `Bank` (Swiss banknotes subset)
-- `MtcarsVS` (mtcars with `vs` as target)
-- `Cassini` (synthetic 3-class, 2D)
-- `Circle2D` (two circles)
-- `Seeds` (UCI Seeds dataset)
-- `Spirals` (two-spirals)
+- `_load(self) -> pd.DataFrame`  
+  Return a `pandas.DataFrame` containing:
+  - All feature columns
+  - A label column named **`target`**
+
+No additional preprocessing is required inside the dataset class unless domain-specific cleaning is needed.
 
 ---
 
-## Classifiers (unified training + prediction API)
+### Automatic Handling via `BaseDataset`
 
-### Classifier contract
-A classifier is a class that implements:
+When calling the dataset instance (via `__call__()`):
 
-- `__init__(...)`: set `self.name` and configure hyperparameters / underlying model
-- `fit(self, df: pd.DataFrame, target_col: str = "target") -> self`
-- `predict(self, data, target_col: str = "target") -> np.ndarray`
-- `predict_proba(self, data, target_col: str = "target") -> np.ndarray`
+- The DataFrame is cached.
+- The `target` column is automatically converted to categorical codes `0, 1, 2, ...`.
+- The original class labels are stored in:
 
-Notes:
-- `fit()` always expects a **DataFrame** with a `target` column.
-- `predict()` / `predict_proba()` accept either a DataFrame (the `target` column is ignored if present) or array-like input.
-- The `target_col` defaults to `"target"` everywhere for consistency.
+```python
+df.attrs["target_categories"]
+```
 
-### Already implemented classifiers
-The following classifier wrappers are implemented:
-
-- `TabPfnClassifier` (TabPFN v2 default)
-- `NaiveBayesClassifier` (`variant="gaussian"` or `variant="multinomial"`)
-- `MultinomialLogitClassifier` (logistic regression + standardization)
-- `SmallNNClassifier` (MLP + standardization)
-- `SVMClassifier` (RBF SVC + standardization, `probability=True`)
-- `RandomForestCls`
-- `GradientBoostingCls`
-- `DecisionTreeCls`
-- `KNNClassifier` (kNN + standardization)
+This ensures that all downstream classifiers operate on standardized targets.
 
 ---
+
+### Example Structure (Wine Dataset)
+
+A typical dataset implementation looks like:
+
+```python
+class Wine(BaseDataset):
+
+    def __init__(self):
+        super().__init__(name="Wine")
+
+    def _load(self) -> pd.DataFrame:
+        data = load_wine()
+        feature_names = list(data.feature_names)
+
+        df = pd.DataFrame(data.data, columns=feature_names)
+        df["target"] = data.target
+
+        df = df[["target"] + feature_names]
+        df.attrs["formula"] = "target ~ " + " + ".join(feature_names)
+        df.attrs["data_name"] = "wine_task"
+
+        return df
+```
+
+Key conventions:
+
+- `target` must be the first column.
+- All remaining columns are treated as features.
+- Optional metadata such as `formula` or `data_name` may be stored in `df.attrs`.
+
+---
+
+### Adding a Custom Dataset
+
+To integrate a new dataset:
+
+1. Create a new class inheriting from `BaseDataset`.
+2. Implement `_load()` to return a properly structured DataFrame.
+3. Ensure the label column is named `target`.
+4. (Optional) Add metadata via `df.attrs`.
+
+No further changes to the framework are required.  
+Once defined, the dataset can immediately be used inside a Task definition.
+
+---
+
+### Already Implemented Datasets
+
+The following dataset classes are available out of the box:  
+BreastCancer, Iris, Wine, Bank (Swiss banknotes subset), MtcarsVS (mtcars with `vs` as target), Cassini (synthetic 3-class, 2D), Circle2D (two circles), Seeds (UCI Seeds dataset), Spirals (two-spirals).
+
+## Classifiers (unified wrapper interface)
+
+A classifier is implemented as a lightweight wrapper around an underlying model (e.g. from `sklearn` or TabPFN).  
+All classifiers expose a consistent interface to ensure seamless integration into Tasks and the SSL pipeline.
+
+---
+
+### Required Interface
+
+A classifier class must implement:
+
+- `__init__(...)`  
+  - Set `self.name`
+  - Initialize and configure the underlying model
+  - Define hyperparameters
+
+- `fit(self, df: pd.DataFrame, target_col: str = "target") -> self`  
+  Train the model using a DataFrame containing a `target` column.
+
+- `predict(self, data, target_col: str = "target") -> np.ndarray`  
+  Return predicted class labels.
+
+- `predict_proba(self, data, target_col: str = "target") -> np.ndarray`  
+  Return class probabilities.
+
+---
+
+### Data Handling Conventions
+
+- `fit()` always expects a **DataFrame** containing a `target` column.
+- `predict()` and `predict_proba()` accept a DataFrame (the `target` column is ignored if present), 
+- The argument `target_col` defaults to `"target"` everywhere for consistency across the entire framework.
+
+---
+
+### Example Structure (RandomForest Wrapper)
+
+A minimal classifier wrapper looks as follows:
+
+```python
+class RandomForestCls:
+
+    def __init__(
+        self,
+        n_estimators: int = 200,
+        max_depth=None,
+        random_state: int = 0,
+        **kwargs
+    ):
+        self.name = "RandomForestCls"
+        self.model = RandomForestClassifier(
+            n_estimators=n_estimators,
+            max_depth=max_depth,
+            random_state=random_state,
+            **kwargs,
+        )
+
+    def fit(self, df: pd.DataFrame, target_col: str = "target"):
+        X, y = _split_X_y(df, target_col)
+        self.model.fit(X, y)
+        return self
+
+    def predict(self, data, target_col: str = "target"):
+        X = _to_X(data, target_col)
+        return self.model.predict(X)
+
+    def predict_proba(self, data, target_col: str = "target"):
+        X = _to_X(data, target_col)
+        return self.model.predict_proba(X)
+```
+
+The wrapper ensures that all classifiers behave identically from the perspective of Tasks and the SSL engine, regardless of the underlying model.
+
+---
+
+### Adding a Custom Classifier
+
+To integrate a new classifier:
+
+1. Create a wrapper class.
+2. Implement the required interface (`fit`, `predict`, `predict_proba`).
+3. Set `self.name`.
+4. Use the provided helper utilities (`_split_X_y`, `_to_X`) to maintain consistency.
+
+No modifications to the remaining system are required.
+
+---
+
+### Already Implemented Classifiers
+
+The following classifier wrappers are available out of the box:  
+TabPfnClassifier (TabPFN v2 default), NaiveBayesClassifier (variant="gaussian" or "multinomial"), MultinomialLogitClassifier (logistic regression + standardization), SmallNNClassifier (MLP + standardization), SVMClassifier (RBF SVC + standardization, probability=True), RandomForestCls, GradientBoostingCls, DecisionTreeCls, KNNClassifier (kNN + standardization).
+
 
 ## Decision Rules (pseudo-label selection logic)
 
-Decision rules encapsulate **how to pick** the next pseudo-labeled point (or generally: which candidate to select) based on labeled and pseudo-labeled sets.
+Decision rules implement the semi-supervised **selection step**: given a labeled dataset and a set of pseudo-labeled candidates, they decide which sample(s) should be selected next.
 
-### Decision rule contract
+Each decision rule follows a minimal contract to ensure that it can be swapped independently of datasets, classifiers, or tasks.
+
+---
+
+### Required Interface
+
 A decision rule is a class that implements:
 
-- `__init__(...)`: set `self.name` and optionally keep a classifier instance
-- `__call__(self, labeled: pd.DataFrame, pseudo: pd.DataFrame) -> int`
+- `__init__(...)`  
+  - Set `self.name`
+  - Optionally store a classifier instance (or wrapper) if the rule requires model predictions
 
-where the return value is the **row index** (integer) of the selected sample within `pseudo`.
+- `__call__(self, labeled: pd.DataFrame, pseudo: pd.DataFrame) -> int | list[int]`
 
-### Already implemented decision rules
-The following selection rules exist:
+The return value must be:
 
-- `maximalPPP`
-- `SSL_prob`
-- `SSL_confidence`
+- Either a single integer, or
+- A list of integers
+
+These integers correspond to the **row indices of the selected samples within `pseudo`**.
+
+In other words, the decision rule returns the index positions of the pseudo-labeled data points that should be added to the labeled dataset next.
 
 ---
 
-## How to extend the system
+### Example Structure (Maximal Probability Selection)
 
-### 1) Add a new dataset
-Create a new class in `data.py`:
-
-- Inherit from `BaseDataset`
-- Implement `_load()` returning a `pd.DataFrame`
-- Ensure the label column is called **`target`**
-
-Minimal skeleton:
+A typical decision rule takes a classifier, fits it on the labeled data, evaluates the pseudo candidates, and selects the most promising one.
 
 ```python
-class MyDataset(BaseDataset):
-    def __init__(self):
-        super().__init__(name="MyDataset")
+class SSL_prob:
 
-    def _load(self) -> pd.DataFrame:
-        df = ...  # build / load your dataframe
-        df["target"] = ...  # ensure target exists
-        return df
-## Test Settings
+    def __init__(self, Classifier):
+        self.name = "maximalProb"
+        self.model = Classifier
 
-The proposed algorithm serves as a foundation for multiple method variants differing in:
+    def prob(self, labeled, pseudo):
+        self.model.fit(labeled)
+        return self.model.predict_proba(pseudo)
 
-* model architecture,
-* stopping criteria.
+    def __call__(self, labeled, pseudo):
+        proba = self.prob(labeled, pseudo)
+        max_proba = np.max(proba, axis=0)
+        winner = int(np.argmax(max_proba))
+        return winner
+```
 
-Benchmarks include:
+The returned value (`winner`) is interpreted as the index of the chosen row in `pseudo`.
 
-* supervised learning,
-* SSL with ad-hoc selection strategies,
-* soft revision methods,
-* SLZ,
-* TabPFN-D.
-
-Experiments will be conducted on established tabular datasets under varying labeled/unlabeled ratios.
+If multiple samples are selected in one step, the rule may instead return a list of indices.
 
 ---
 
-## Results
+### Adding a Custom Decision Rule
 
-⬇️ **Place results here**
+To add a new selection strategy:
 
-This section is intentionally left as a placeholder for:
+1. Create a new decision rule class.
+2. Implement `__call__(labeled, pseudo)`.
+3. Return either:
+   - A single integer index, or
+   - A list of integer indices.
 
-* static preview plots (PNG),
-* links to interactive plots hosted via GitHub Pages,
-* quantitative result tables.
-
-Example structure:
-
-* `plots/…png` → shown below
-* `docs/…html` → interactive version
+No additional changes to the framework are required.
 
 ---
 
-## Disclaimer on the Use of LLMs
+### Already Implemented Decision Rules
 
-The use of large language models (LLMs) in the preparation of this work is outlined below:
+The following decision rules are available out of the box:  
+maximalPPP, SSL_prob, SSL_confidence.
 
-* Development of research idea and proposal: **No LLMs used**
-* Development of core content or substantive arguments: **No LLMs used**
-* Improvement of language and writing style: **LLM used**
-* Spelling and grammar checking: **LLM used**
+
+## Tasks (experiment definitions)
+
+Tasks live as `.py` files inside the `tasks/` directory.  
+They define *which experiments are executed* by specifying configurations that combine:
+
+- dataset
+- number of labeled samples (`n`)
+- number of unlabeled samples (`m`)
+- classifier
+- decision rule
+- sampler
+- evaluation function
+
+Each entry in the `Experiments` list defines **one subexperiment**.
 
 ---
+
+### Example Task Definition
+
+Below is a simplified example of a task defining two subexperiments.  
+Both use the same dataset and classifier, but differ in labeled/unlabeled sizes and decision rule:
+
+```python
+Experiments = [
+
+    {
+        "n": 10,
+        "m": 100,
+        "Data": Spirals(),
+        "Sampler": fun.upsample,
+        "Evaluation": fun.confusion,
+        "Classifier": KNNClassifier(k=5),
+        "Decision": maximalPPP(KNNClassifier(k=5)),
+        "Predict": fun.predictor,
+    },
+
+    {
+        "n": 20,
+        "m": 80,
+        "Data": Spirals(),
+        "Sampler": fun.upsample,
+        "Evaluation": fun.confusion,
+        "Classifier": KNNClassifier(k=5),
+        "Decision": SSL_prob(KNNClassifier(k=5)),
+        "Predict": fun.predictor,
+    },
+]
+```
+
+---
+
+### What Happens Internally
+
+For each subexperiment:
+
+1. The dataset is loaded.
+2. The `Sampler` draws labeled, unlabeled, and test splits for each seed.
+3. The SSL loop is executed.
+4. The `Evaluation` function computes a confusion matrix on the test set.
+5. Results are stored and aggregated.
+
+---
+
+### Important Notes
+
+- `Sampler` is currently fixed to `fun.upsample`  
+  It draws labeled, unlabeled, and test data for every seed.
+
+- `Evaluation` is currently fixed to `fun.confusion`  
+  It returns a confusion matrix for the test predictions.
+
+- Multiple decision rules automatically create multiple subexperiments.
+
+- Future extensions may include:
+  - custom sampling strategies
+  - alternative evaluation metrics
+  - explicit stopping criteria (e.g. max iterations, convergence threshold)
+
+---
+
+A task therefore acts as a structured experiment specification layer and is fully modular:  
+changing dataset, classifier, or decision rule does not require modifications elsewhere in the framework.
 
 *This repository represents an ongoing research project and will be extended with experimental results and code.*
 
 
+# Citation and Licennce
 
 
 Proper citation is appreciated if this project contributes to published or submitted work.
 ---
 
 
-
-```
 ## Citation
 
 If you use this repository in academic work, research projects, or derivative implementations, please cite it as follows:
