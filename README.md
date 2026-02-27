@@ -190,30 +190,41 @@ Follow the steps below to set up the project locally:
    uv pip install -e .
    ```
 
-# How to Use
+## How to Use
 
-The repository supports two execution modes:
+The repository supports both local execution and cluster-based execution (LRZ AI Systems).  
+From a user perspective, the workflow is identical in both cases — the same script is used and the same interactive interface appears.
 
-1. **Local execution** (default)
-2. **Cluster execution via LRZ AI Systems (SLURM-based)**
-
-Evaluation is handled separately and described at the end of this section.
+> **Important Note on Experiments and Subexperiments**  
+> An *experiment* is defined by the configuration:
+> - Dataset  
+> - Number of labeled samples  
+> - Number of unlabeled samples  
+> - Classifier  
+>
+> However, during execution, each experiment is internally split into **subexperiments**, one for each decision method.  
+>
+> This design is intentional and improves efficiency:
+> - Some methods require GPU acceleration.
+> - Others can be executed efficiently on CPUs.
+>
+> By splitting experiments into subexperiments, resource allocation can be optimized automatically.
 
 ---
 
-## Local Execution 
+### Local Execution (Default)
 
-To run experiments locally, use the interactive runner:
+To start experiments locally:
 
 ```bash
 uv run python run_interactive.py
 ```
 
-> This is the standard execution mode if the repository is not running inside the LRZ AI Systems environment.
+This is the default mode when running outside the LRZ AI Systems environment.
 
 ---
 
-### 1. Select a Task Sheet
+#### 1) Select a Task Sheet
 
 You will be prompted to choose one of the available task sheets:
 
@@ -225,17 +236,14 @@ Welches Task-Sheet möchtest du ausführen?
 Auswahl (1-3) [default 1]:
 ```
 
-Enter the corresponding number (e.g. `3` for `toy_examples.py`).  
+Enter the corresponding number.  
 If no input is provided, the default option is selected.
-
-> The structure of task sheets and the procedure for adding new experiments is explained in detail in the section  
-> **Modules → Tasks** of this README.
 
 ---
 
-### 2. Select Experiments
+#### 2) Select Experiments
 
-Next, specify which experiment(s) to execute:
+Specify which experiment(s) to execute:
 
 ```
 Experiment wählen: Zahl (z.B. 3), Range (z.B. 0-10) oder 'all':
@@ -243,73 +251,87 @@ Experiment wählen: Zahl (z.B. 3), Range (z.B. 0-10) oder 'all':
 
 Supported formats:
 
-- Single experiment: `3`
-- Range of experiments: `0-10`
-- All experiments: `all`
-
-Example:
-```
-1-10
-```
+- `3` (single experiment)
+- `0-10` (range)
+- `all`
 
 ---
 
-### 3. Configure Seeds
+#### 3) Configure Seeds
 
-You will then be asked to define the seed configuration:
+You will then define the seed configuration:
 
 ```
 NUM_SEEDS [default 5]:
 BASE_SEED [default 0]:
 ```
 
-- `NUM_SEEDS` determines how many times an experiment is repeated.
-- The seeds used range from `BASE_SEED` up to  
-  `BASE_SEED + NUM_SEEDS - 1`.
+- `NUM_SEEDS` determines how many times the experiment is repeated.
+- Seeds range from:
+  
+  ```
+  BASE_SEED  ...  BASE_SEED + NUM_SEEDS - 1
+  ```
 
-For example:
+Example:
 
 - `BASE_SEED = 0`
 - `NUM_SEEDS = 5`
 
-→ Seeds `0, 1, 2, 3, 4` will be executed.
+→ Seeds `0, 1, 2, 3, 4`
 
-If no value is entered, the default values are used.
-
-The selected experiments are then executed sequentially according to the chosen configuration.
+Experiments (and their subexperiments) are executed sequentially in local mode.
 
 ---
 
-## Cluster Execution (LRZ AI Systems via SSH)
+## Cluster Execution (LRZ AI Systems via SLURM)
 
-Experiments can also be executed on the **LRZ AI Systems cluster**.
+Access to the LRZ AI Systems is available via SSH:
 
-LRZ provides GPU-based compute systems accessible via SSH:
-https://doku.lrz.de/1-access-10746642.html
+- Access documentation: https://doku.lrz.de/1-access-10746642.html  
+- AI Systems overview: https://doku.lrz.de/ai-systems-11484278.html  
+- SLURM documentation: https://doku.lrz.de/5-slurm-1897076524.html  
 
-Overview of LRZ AI Systems:
-https://doku.lrz.de/ai-systems-11484278.html
+### Important: The Interface Is Identical
 
-Cluster jobs are managed using **SLURM**, a workload manager for scheduling compute jobs on distributed systems:
-https://doku.lrz.de/5-slurm-1897076524.html
+Cluster execution uses the **same script**:
 
-SLURM allocates resources (GPUs, CPUs, memory, runtime) and schedules jobs across available compute nodes.
+```bash
+uv run python run_interactive.py
+```
+
+The interaction flow (task selection, experiment selection, seed configuration) is exactly the same.
+
+The only difference lies in the execution backend:
+
+- **Local mode:** subexperiments are executed sequentially.
+- **Cluster mode:** each subexperiment is submitted as a separate SLURM job.
+
+Each job is dispatched via SSH to the cluster and scheduled automatically.
 
 ---
 
-## How It Works
+### What Is SLURM?
 
-From the user interface perspective, execution behaves similarly to the local runner.
+SLURM is a workload manager used to distribute computational jobs across compute nodes in a cluster.
 
-However, instead of running experiments directly on your local machine, the system submits jobs to SLURM using the script:
+It:
+- Allocates GPUs, CPUs, memory and runtime
+- Queues jobs
+- Schedules execution across nodes
+- Enables parallel execution
+
+---
+
+### Resource Configuration
+
+Cluster jobs are defined in:
 
 ```
 train_seeds_multinode.slurm
 ```
 
-This script defines the compute resources and scheduling parameters.
-
-An example configuration:
+Example configuration:
 
 ```
 #SBATCH --nodes=1
@@ -321,48 +343,51 @@ An example configuration:
 #SBATCH --mem=64G
 ```
 
-Key parameters:
+Key parameter:
 
-- `--partition=lrz-hgx-a100-80x4` selects the GPU system (A100 nodes).
-- `--gres=gpu:1` requests one GPU.
-- `--nodes` allows scaling across multiple nodes.
-- `--time` defines the maximum runtime.
+```
+--partition=lrz-hgx-a100-80x4
+```
 
-This setup enables:
+This selects the A100 GPU nodes.
 
-- Parallel execution of multiple seeds
-- Multi-node execution
-- Multi-GPU scaling
-- Large-scale reproducible experimentation
+---
 
-By distributing seeds across multiple nodes and GPUs, experiments can be executed significantly faster than in local mode.
+### Why This Is Powerful
+
+Because each subexperiment is submitted as an individual job:
+
+- Seeds can be distributed across multiple nodes.
+- GPU-heavy methods run on GPUs.
+- CPU-friendly methods run efficiently without wasting GPU resources.
+- Large-scale experiments can run in parallel.
+
+This allows substantial speedups compared to purely sequential local execution.
 
 ---
 
 ## Evaluation Mode
 
-Evaluation is handled via:
+Evaluation is handled separately:
 
 ```bash
 uv run python evaluate_interactive.py
 ```
 
-After starting the script, you can choose between two evaluation outputs:
+You can choose between:
 
 ```
-Would you like to create a tabular summary or a plot?
-  1) Tabular Summary
-  2) Plot (Accuracy vs. Iteration)
-Selection (1/2):
+1) Tabular Summary
+2) Plot (Accuracy vs. Iteration)
 ```
 
 ---
 
-## 1) Tabular Summary
+### Tabular Summary
 
-If you select **Tabular Summary**, the system prints a concise overview for each experiment configuration.
+Provides an aggregated summary per experiment configuration.
 
-Example output:
+Example:
 
 ```
 dataset:              Spirals
@@ -376,7 +401,7 @@ maximum accuracy:     0.814996
 accuracy at end:      0.784460
 ```
 
-Results are written to:
+Results are stored in:
 
 ```
 evaluation/summary_results.csv
@@ -384,18 +409,19 @@ evaluation/summary_results.csv
 
 ---
 
-## 2) Plots (Accuracy vs. Iteration)
+### Plots (Accuracy vs. Iteration)
 
-If you select **Plot**, the script displays which plots can be generated.  
-Selected plots are saved as `.png` files in:
+Plots can be generated interactively.
+
+They are saved to:
 
 ```
 evaluation/plots/
 ```
 
-> Plot generation is only performed if all experiment configurations are complete — meaning that each method was evaluated with the same number of runs/seeds to ensure comparability.
+> Plots are generated only if all experiment configurations are complete (i.e., all methods were executed with the same number of seeds).
 
-The generated plots correspond to the figures shown in the **Results** section of this repository.
+The generated figures correspond exactly to the plots shown in the **Results** section of this repository.
 ---
 ## Modular Architecture & Extensibility
 
