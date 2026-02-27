@@ -109,10 +109,10 @@ def main(results_dir: str = "results", out_csv: str = "evaluation/summary_result
         df.groupby(group_cols, as_index=False)
           .agg(
               **{
-                  "seeds getestet": ("seeds_in_file", _union_seed_sets),
-                  "accuracy am anfang": ("acc_start", "mean"),
-                  "maximale accuracy": ("acc_max", "mean"),
-                  "accuray am ende": ("acc_end", "mean"),
+                  "seeds tested": ("seeds_in_file", _union_seed_sets),
+                  "accuracy at start": ("acc_start", "mean"),
+                  "maximum accuracy": ("acc_max", "mean"),
+                  "accuracy at end": ("acc_end", "mean"),
               }
           )
           .sort_values(group_cols)
@@ -125,15 +125,15 @@ def main(results_dir: str = "results", out_csv: str = "evaluation/summary_result
 
     print("\nSummary:\n")
     for _, r in agg.iterrows():
-        print(f"dataset:           {r['dataset']}")
-        print(f"Labled data:       {r['Labled data']}")
-        print(f"unlabled data:     {r['unlabled data']}")
-        print(f"classifyer:        {r['classifyer']}")
-        print(f"decision funktion: {r['decision funktion']}")
-        print(f"seeds getestet:    {int(r['seeds getestet'])}")
-        print(f"accuracy am anfang: {r['accuracy am anfang']:.6f}")
-        print(f"maximale accuracy:  {r['maximale accuracy']:.6f}")
-        print(f"accuray am ende:    {r['accuray am ende']:.6f}\n")
+        print(f"dataset:            {r['dataset']}")
+        print(f"Labled data:        {r['Labled data']}")
+        print(f"unlabled data:      {r['unlabled data']}")
+        print(f"classifyer:         {r['classifyer']}")
+        print(f"decision funktion:  {r['decision funktion']}")
+        print(f"seeds tested:       {int(r['seeds tested'])}")
+        print(f"accuracy at start:  {r['accuracy at start']:.6f}")
+        print(f"maximum accuracy:   {r['maximum accuracy']:.6f}")
+        print(f"accuracy at end:    {r['accuracy at end']:.6f}\n")
 
     print(f"Saved CSV: {out_path.resolve()}")
 

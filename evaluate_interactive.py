@@ -30,23 +30,23 @@ def main() -> None:
     summarize = _import_from_path("summarize_results", summarize_path)
     plots = _import_from_path("make_accuracy_plots", plots_path)
 
-    print("\nWillst du eine Tabulare Übersicht oder eine Grafik machen?")
-    print("  1) Tabulare Übersicht")
-    print("  2) Grafik (Accuracy vs. Iteration)")
-    choice = input("Auswahl (1/2): ").strip()
+    print("\nDo you want to create a tabular overview or plots?")
+    print("  1) Tabular overview")
+    print("  2) Plots")
+    choice = input("Selection (1/2): ").strip()
 
     if choice == "1":
         summarize.main(results_dir="results", out_csv=str(eval_dir / "summary_results.csv"))
         return
 
     if choice != "2":
-        print("Ungültige Auswahl.")
+        print("Invalid selection.")
         sys.exit(1)
 
     plot_df = plots.build_plot_data("results")
     options = plots.list_possible_plots(plot_df)
 
-    print("\nMögliche Grafiken:\n")
+    print("\nAvailable plots:\n")
     for _, r in options.iterrows():
         print(
             f"{int(r['nr'])}: dataset={r['dataset']} | "
@@ -54,11 +54,11 @@ def main() -> None:
             f"classifyer={r['classifyer']}"
         )
 
-    sel = input("\nWelche willst du erstellen? (z.B. 'all' oder '1-5,7,9'): ").strip()
+    sel = input("\nWhich ones do you want to generate? (e.g. 'all' or '1-5,7,9'): ").strip()
     idxs = plots.parse_selection(sel, max_n=len(options))
 
     if not idxs:
-        print("Keine gültige Auswahl.")
+        print("No valid selection.")
         return
 
     out_dir = eval_dir / "plots"
@@ -66,7 +66,7 @@ def main() -> None:
 
     plots.make_plots(plot_df, out_dir=str(out_dir), selections_1based=idxs)
 
-    print(f"\nFertig. Grafiken liegen in: {out_dir.resolve()}\n")
+    print(f"\nDone. Plots are located in: {out_dir.resolve()}\n")
 
 
 if __name__ == "__main__":

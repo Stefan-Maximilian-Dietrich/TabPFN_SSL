@@ -19,7 +19,6 @@ def have_cmd(cmd):
     return which(cmd) is not None
 
 def is_lrz_like() -> bool:
-    # Heuristik: SLURM-Env oder sbatch vorhanden
     return ("SLURM_CLUSTER_NAME" in os.environ) or have_cmd("sbatch")
 
 def list_task_files():
@@ -33,14 +32,14 @@ def ask_choice(title: str, options: list[str], default_index: int = 0) -> str:
         prefix = "->" if (i - 1) == default_index else "  "
         print(f"{prefix} [{i}] {opt}")
     while True:
-        raw = input(f"Auswahl (1-{len(options)}) [default {default_index+1}]: ").strip()
+        raw = input(f"Selection (1-{len(options)}) [default {default_index+1}]: ").strip()
         if raw == "":
             return options[default_index]
         if raw.isdigit():
             k = int(raw)
             if 1 <= k <= len(options):
                 return options[k - 1]
-        print("Bitte eine gültige Zahl eingeben.")
+        print("Please enter a valid number.")
 
 def ask_int(prompt: str, default: int) -> int:
     while True:
@@ -50,10 +49,10 @@ def ask_int(prompt: str, default: int) -> int:
         try:
             return int(raw)
         except ValueError:
-            print("Bitte eine ganze Zahl eingeben.")
+            print("Please enter an integer.")
 
 def ask_exp_list():
-    raw = input("Experiment wählen: Zahl (z.B. 3), Range (z.B. 0-10) oder 'all': ").strip().lower()
+    raw = input("Choose experiment: number (e.g. 3), range (e.g. 0-10) or 'all': ").strip().lower()
     if raw in ("all", ""):
         return list(range(0, 11))
     if re.fullmatch(r"\d+", raw):
@@ -64,12 +63,12 @@ def ask_exp_list():
         if a > b:
             a, b = b, a
         return list(range(a, b + 1))
-    print("Ungültig. Ich nehme 'all' (0..10).")
+    print("Invalid input. Using 'all' (0..10).")
     return list(range(0, 11))
 
 
 def run_local(task_file: Path, exp_nums: list[int], num_seeds: int, base_seed: int):
-    print("\n[LOCAL] Starte lokale Ausführung (sequenziell, ohne Slurm).")
+    print("\n[LOCAL] Starting local execution (sequential, without Slurm).")
     for exp in exp_nums:
         cmd = [
             sys.executable,
@@ -83,7 +82,7 @@ def run_local(task_file: Path, exp_nums: list[int], num_seeds: int, base_seed: i
         subprocess.run(cmd, check=True)
 
 def submit_lrz(task_file: Path, exp_nums: list[int], num_seeds: int, base_seed: int):
-    print("\n[LRZ] Submit via sbatch (jede EXP_NUM ein eigener Job).")
+    print("\n[LRZ] Submit via sbatch (each EXP_NUM is a separate job).")
     logs = REPO / "logs"
     err = REPO / "error"
     logs.mkdir(exist_ok=True)
@@ -113,15 +112,15 @@ def submit_lrz(task_file: Path, exp_nums: list[int], num_seeds: int, base_seed: 
             check=False
         )
     except FileNotFoundError:
-        print("squeue nicht gefunden (seltsam auf LRZ).")
+        print("squeue not found (unexpected on LRZ).")
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--mode", choices=["auto", "local", "lrz"], default="auto",
-                    help="auto erkennt sbatch; local erzwingt lokal; lrz erzwingt LRZ-submit.")
+                    help="auto detects sbatch; local forces local execution; lrz forces LRZ submit.")
     args = ap.parse_args()
 
-    # Mode bestimmen
+    # choosing mode 
     auto_lrz = is_lrz_like()
     if args.mode == "auto":
         mode = "lrz" if auto_lrz else "local"
@@ -129,38 +128,38 @@ def main():
         mode = args.mode
 
     print("======================================")
-    print(" TabPFN_SSL - Interaktiver Runner")
+    print(" TabPFN_SSL - Interactive Runner")
     print("======================================")
     print(f"Repo:  {REPO}")
     print(f"Mode:  {mode} (auto_detect_lrz={auto_lrz})")
 
-    # Task-Sheet wählen
+    # choose sheet 
     task_files = list_task_files()
     if not task_files:
-        print(f"ERROR: Keine Task-Files in {TASKS_DIR} gefunden.")
+        print(f"ERROR: No task files found in {TASKS_DIR}.")
         sys.exit(1)
 
     task_choice = ask_choice(
-        "Welches Task-Sheet möchtest du ausführen?",
+        "Which task sheet would you like to run?",
         [p.name for p in task_files],
         default_index=0
     )
     task_file = TASKS_DIR / task_choice
     print(task_file)
-    # Experimente wählen
+    # choose exp
     exp_nums = ask_exp_list()
 
-    # Seeds
+    # seeds
     num_seeds = ask_int("NUM_SEEDS", default=5)
     base_seed = ask_int("BASE_SEED", default=0)
 
-    # Ausführen
+    # run
     if mode == "local":
         run_local(task_file, exp_nums, num_seeds, base_seed)
     else:
         submit_lrz(task_file, exp_nums, num_seeds, base_seed)
 
-    print("\nFertig.")
+    print("\nDone.")
 
 if __name__ == "__main__":
     main()
