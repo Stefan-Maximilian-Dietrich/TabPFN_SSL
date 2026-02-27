@@ -23,16 +23,24 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "pip"
 
-      - name: Install dependencies
+      # ✅ Install uv
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v3
+
+      # ✅ Install project deps from pyproject.toml + uv.lock
+      - name: Install dependencies (uv)
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install pytest pytest-cov ruff
+          uv sync --frozen
+
+      # ✅ Ensure test/dev tools exist (if you haven't added them to pyproject optional deps yet)
+      - name: Install test tools (uv)
+        run: |
+          uv pip install pytest pytest-cov ruff
 
       - name: Lint
         run: |
-          ruff check .
+          uv run ruff check .
 
       # ✅ Nicht mehr failen, nur warnen (sonst keine Coverage/Badge)
       - name: Check HF token (warn if missing)
@@ -57,8 +65,7 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HUGGINGFACE_HUB_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          # Coverage stabil nur über echte Packages
-          pytest -v \
+          uv run pytest -v \
             --cov=modules \
             --cov=evaluation \
             --cov-branch \
