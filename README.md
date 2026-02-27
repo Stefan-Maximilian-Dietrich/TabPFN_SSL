@@ -14,18 +14,31 @@ Author: **Stefan Maximilian Dietrich**
 Date: **February 2026**
 
 ---
+# Table of Contents
 
-## 📌 Table of Contents
+- [Theoretical Background](#theoretical-background)
+  - [Bayesian Pseudo-Label Selection in SSL](#1-bayesian-pseudo-label-selection-in-ssl)
+  - [Prior-Data Fitted Networks and TabPFN](#2-prior-data-fitted-networks-and-tabpfn)
+  - [SSL with PFNs: Decision-Theoretic Selection](#3-ssl-with-pfns-decision-theoretic-selection-via-posterior-predictives)
 
-* [Bayesian PLS in Semi-Supervised Learning](#bayesian-pls-in-semi-supervised-learning)
-* [Prior-Data Fitted Networks (PFN)](#prior-data-fitted-networks-pfn)
-* [Semi-Supervised Learning with PFNs](#semi-supervised-learning-with-pfns)
-* [Related Work](#related-work)
-* [Algorithmic Framework](#algorithmic-framework)
-* [Test Settings](#test-settings)
-* [Results](#results)
-* [Disclaimer on the Use of LLMs](#disclaimer-on-the-use-of-llms)
+- [Results](#results)
+  - [Experimental Configurations](#experimental-configurations)
+  - [Observations](#observations)
 
+- [Installation](#installation)
+
+- [How to Use](#how-to-use)
+  - [Local Execution](#local-execution-default)
+  - [Cluster Execution (LRZ AI Systems via SLURM)](#cluster-execution-lrz-ai-systems-via-slurm)
+  - [Evaluation Mode](#evaluation-mode)
+
+- [Documentation (Modular Architecture & Extensibility)](#dokumentation-modular-architecture--extensibility)
+  - [Datasets](#datasets-basedataset--concrete-dataset-classes)
+  - [Classifiers](#classifiers-unified-wrapper-interface)
+  - [Decision Rules](#decision-rules-pseudo-label-selection-logic)
+  - [Tasks](#tasks-experiment-definitions)
+
+- [Citation and License](#citation-and-licennce)
 ---
 # Theoretical Background
 
