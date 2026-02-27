@@ -765,95 +765,88 @@ The following decision rules are available out of the box:
 maximalPPP, SSL_prob, SSL_confidence.
 
 
-## Disclaimer on the Use of LLMs
+## Tasks (experiment definitions)
 
-The use of large language models (LLMs) in the preparation of this work is outlined below:
-
-* Development of research idea and proposal: **No LLMs used**
-* Development of core content or substantive arguments: **No LLMs used**
-* Improvement of language and writing style: **LLM used**
-* Spelling and grammar checking: **LLM used**
-
----
-
-## Tasks (experiment orchestration)
-
-Tasks define *what to run*. They live as `.py` scripts inside the `tasks/` directory and act as the glue layer between:
-
-- datasets,
-- classifiers,
-- decision rules,
-- and the SSL engine.
-
-A task typically specifies a collection of **experiments**. Each experiment is defined by a configuration such as:
+Tasks live as `.py` files inside the `tasks/` directory.  
+They define *which experiments are executed* by specifying configurations that combine:
 
 - dataset
-- number of labeled samples `n`
-- number of unlabeled samples `m`
+- number of labeled samples (`n`)
+- number of unlabeled samples (`m`)
 - classifier
+- decision rule
+- sampler
+- evaluation function
 
-During execution, an experiment is internally split into **subexperiments**: for each decision rule, the same base experiment configuration is executed once. This enables efficient resource usage (e.g., some decision rules or classifiers may require GPUs, while others run efficiently on CPUs).
-
----
-
-### Task Structure
-
-A task script usually constructs an `experiments` list.  
-Each entry is a dictionary describing a single experiment configuration and the functions used by the SSL pipeline.
-
-A typical configuration contains:
-
-- `n`, `m`  
-  Number of labeled and unlabeled points used per seed.
-
-- `Data`  
-  A dataset object (instance of a `BaseDataset` subclass).
-
-- `Classifier`  
-  A classifier wrapper object.
-
-- `Decision`  
-  A decision rule (selection logic).  
-  This field is what creates **subexperiments**: one experiment configuration is run once *per decision rule*.
-
-- `Sampler` *(currently fixed)*  
-  A sampling function that, for each seed, draws:
-  - labeled data
-  - unlabeled data
-  - a test set  
-  from the dataset.
-
-- `Evaluation` *(currently fixed)*  
-  An evaluation function. At the moment it returns a **confusion matrix** for the test set.
-
-- `Predict`  
-  A prediction function used to obtain model predictions during evaluation.
-
-> **Note:** `Sampler` and `Evaluation` are currently fixed across tasks, but are designed to be replaceable in future versions (e.g., alternative sampling strategies or evaluation metrics).
+Each entry in the `Experiments` list defines **one subexperiment**.
 
 ---
 
-### Experiments vs. Subexperiments
+### Example Task Definition
 
-- An **experiment** is defined by the base configuration (dataset, `n`, `m`, classifier).
-- A **subexperiment** is created by pairing this base configuration with one specific decision rule.
+Below is a simplified example of a task defining two subexperiments.  
+Both use the same dataset and classifier, but differ in labeled/unlabeled sizes and decision rule:
 
-In other words, if a task defines one experiment configuration and three decision rules, the system will execute **three subexperiments**.
+```python
+Experiments = [
 
-This design also makes it straightforward to introduce additional features such as a **stopping criterion** (e.g., stop after no improvement, max iterations, confidence threshold), which can be attached at the task level in future extensions.
+    {
+        "n": 10,
+        "m": 100,
+        "Data": Spirals(),
+        "Sampler": fun.upsample,
+        "Evaluation": fun.confusion,
+        "Classifier": KNNClassifier(k=5),
+        "Decision": maximalPPP(KNNClassifier(k=5)),
+        "Predict": fun.predictor,
+    },
+
+    {
+        "n": 20,
+        "m": 80,
+        "Data": Spirals(),
+        "Sampler": fun.upsample,
+        "Evaluation": fun.confusion,
+        "Classifier": KNNClassifier(k=5),
+        "Decision": SSL_prob(KNNClassifier(k=5)),
+        "Predict": fun.predictor,
+    },
+]
+```
 
 ---
 
-### Adding a Custom Task
+### What Happens Internally
 
-To add a new task:
+For each subexperiment:
 
-1. Create a new `.py` file in `tasks/` (e.g., `my_task.py`).
-2. Define your experiment configurations (typically as a list of dictionaries).
-3. Specify dataset(s), classifier(s), and decision rule(s).
-4. Run the task via the interactive runner (`run_interactive.py`).
+1. The dataset is loaded.
+2. The `Sampler` draws labeled, unlabeled, and test splits for each seed.
+3. The SSL loop is executed.
+4. The `Evaluation` function computes a confusion matrix on the test set.
+5. Results are stored and aggregated.
 
-No changes to the remaining framework are required.
+---
+
+### Important Notes
+
+- `Sampler` is currently fixed to `fun.upsample`  
+  It draws labeled, unlabeled, and test data for every seed.
+
+- `Evaluation` is currently fixed to `fun.confusion`  
+  It returns a confusion matrix for the test predictions.
+
+- Multiple decision rules automatically create multiple subexperiments.
+
+- Future extensions may include:
+  - custom sampling strategies
+  - alternative evaluation metrics
+  - explicit stopping criteria (e.g. max iterations, convergence threshold)
+
+---
+
+A task therefore acts as a structured experiment specification layer and is fully modular:  
+changing dataset, classifier, or decision rule does not require modifications elsewhere in the framework.
 
 *This repository represents an ongoing research project and will be extended with experimental results and code.*
 
