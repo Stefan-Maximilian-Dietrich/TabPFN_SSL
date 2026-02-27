@@ -424,6 +424,18 @@ evaluation/plots/
 The generated figures correspond exactly to the plots shown in the **Results** section of this repository.
 ---
 # Modular Architecture & Extensibility
+This project is intentionally **modular**: you can extend or swap components without touching the rest of the system.  
+The four core building blocks are:
+
+1. **Datasets** (`data.py`) – provide data as a `pandas.DataFrame`
+2. **Classifiers** (`classifier.py`) – provide a unified training/inference API
+3. **Decision Rules** (`decision.py`) – decide *which* pseudo-labeled sample to select next (semi-supervised selection logic)
+4. **Tasks** (`tasks/`) – define and orchestrate experiments by combining datasets, classifiers, and decision rules into one or more **experiments** (and their **subexperiments**)
+
+A key convention across the entire codebase is the **target column name**:
+
+- The label column **must** be named: `target`
+- All remaining columns are treated as features
 
 ```mermaid
 flowchart LR
@@ -492,151 +504,266 @@ G --> EP[Explore Platform]
 TAB --> EX[Explore Excel]
 ```
 
-This project is intentionally **modular**: you can extend or swap components without touching the rest of the system.  
-The three core building blocks are:
-
-1. **Datasets** (`data.py`) – provide data as a `pandas.DataFrame`
-2. **Classifiers** (`classifier.py`) – provide a unified training/inference API
-3. **Decision Rules** (`decision.py`) – decide *which* pseudo-labeled sample to select next (semi-supervised selection logic)
-
-A key convention across the entire codebase is the **target column name**:
-
-- The label column **must** be named: `target`
-- All remaining columns are treated as features
-
 ---
 
 ## Datasets (`BaseDataset` + concrete dataset classes)
 
-### Dataset contract
-A dataset is a class inheriting from `BaseDataset` and implementing:
+A dataset is implemented as a class inheriting from `BaseDataset`.  
+Each dataset encapsulates data loading, formatting, and metadata definition in a consistent and reproducible way.
 
-- `__init__(...)`: call `super().__init__(name="...")`
-- `_load(self) -> pd.DataFrame`: return a DataFrame containing all features **and** a `target` column
+### Required Structure
 
-`BaseDataset.__call__()` caches the loaded DataFrame and standardizes `target` by converting it to categorical codes `0,1,2,...` (and stores original categories in `df.attrs["target_categories"]`).
+A custom dataset must implement:
 
-### Already implemented datasets
-The following dataset classes are available out-of-the-box:
+- `__init__(...)`  
+  Call `super().__init__(name="...")` to register the dataset name.
 
-- `BreastCancer`
-- `Iris`
-- `Wine`
-- `Bank` (Swiss banknotes subset)
-- `MtcarsVS` (mtcars with `vs` as target)
-- `Cassini` (synthetic 3-class, 2D)
-- `Circle2D` (two circles)
-- `Seeds` (UCI Seeds dataset)
-- `Spirals` (two-spirals)
+- `_load(self) -> pd.DataFrame`  
+  Return a `pandas.DataFrame` containing:
+  - All feature columns
+  - A label column named **`target`**
+
+No additional preprocessing is required inside the dataset class unless domain-specific cleaning is needed.
 
 ---
 
-## Classifiers (unified training + prediction API)
+### Automatic Handling via `BaseDataset`
 
-### Classifier contract
-A classifier is a class that implements:
+When calling the dataset instance (via `__call__()`):
 
-- `__init__(...)`: set `self.name` and configure hyperparameters / underlying model
-- `fit(self, df: pd.DataFrame, target_col: str = "target") -> self`
-- `predict(self, data, target_col: str = "target") -> np.ndarray`
-- `predict_proba(self, data, target_col: str = "target") -> np.ndarray`
+- The DataFrame is cached.
+- The `target` column is automatically converted to categorical codes `0, 1, 2, ...`.
+- The original class labels are stored in:
 
-Notes:
-- `fit()` always expects a **DataFrame** with a `target` column.
-- `predict()` / `predict_proba()` accept either a DataFrame (the `target` column is ignored if present) or array-like input.
-- The `target_col` defaults to `"target"` everywhere for consistency.
+```python
+df.attrs["target_categories"]
+```
 
-### Already implemented classifiers
-The following classifier wrappers are implemented:
-
-- `TabPfnClassifier` (TabPFN v2 default)
-- `NaiveBayesClassifier` (`variant="gaussian"` or `variant="multinomial"`)
-- `MultinomialLogitClassifier` (logistic regression + standardization)
-- `SmallNNClassifier` (MLP + standardization)
-- `SVMClassifier` (RBF SVC + standardization, `probability=True`)
-- `RandomForestCls`
-- `GradientBoostingCls`
-- `DecisionTreeCls`
-- `KNNClassifier` (kNN + standardization)
+This ensures that all downstream classifiers operate on standardized targets.
 
 ---
+
+### Example Structure (Wine Dataset)
+
+A typical dataset implementation looks like:
+
+```python
+class Wine(BaseDataset):
+
+    def __init__(self):
+        super().__init__(name="Wine")
+
+    def _load(self) -> pd.DataFrame:
+        data = load_wine()
+        feature_names = list(data.feature_names)
+
+        df = pd.DataFrame(data.data, columns=feature_names)
+        df["target"] = data.target
+
+        df = df[["target"] + feature_names]
+        df.attrs["formula"] = "target ~ " + " + ".join(feature_names)
+        df.attrs["data_name"] = "wine_task"
+
+        return df
+```
+
+Key conventions:
+
+- `target` must be the first column.
+- All remaining columns are treated as features.
+- Optional metadata such as `formula` or `data_name` may be stored in `df.attrs`.
+
+---
+
+### Adding a Custom Dataset
+
+To integrate a new dataset:
+
+1. Create a new class inheriting from `BaseDataset`.
+2. Implement `_load()` to return a properly structured DataFrame.
+3. Ensure the label column is named `target`.
+4. (Optional) Add metadata via `df.attrs`.
+
+No further changes to the framework are required.  
+Once defined, the dataset can immediately be used inside a Task definition.
+
+---
+
+### Already Implemented Datasets
+
+The following dataset classes are available out of the box:  
+BreastCancer, Iris, Wine, Bank (Swiss banknotes subset), MtcarsVS (mtcars with `vs` as target), Cassini (synthetic 3-class, 2D), Circle2D (two circles), Seeds (UCI Seeds dataset), Spirals (two-spirals).
+
+## Classifiers (unified wrapper interface)
+
+A classifier is implemented as a lightweight wrapper around an underlying model (e.g. from `sklearn` or TabPFN).  
+All classifiers expose a consistent interface to ensure seamless integration into Tasks and the SSL pipeline.
+
+---
+
+### Required Interface
+
+A classifier class must implement:
+
+- `__init__(...)`  
+  - Set `self.name`
+  - Initialize and configure the underlying model
+  - Define hyperparameters
+
+- `fit(self, df: pd.DataFrame, target_col: str = "target") -> self`  
+  Train the model using a DataFrame containing a `target` column.
+
+- `predict(self, data, target_col: str = "target") -> np.ndarray`  
+  Return predicted class labels.
+
+- `predict_proba(self, data, target_col: str = "target") -> np.ndarray`  
+  Return class probabilities.
+
+---
+
+### Data Handling Conventions
+
+- `fit()` always expects a **DataFrame** containing a `target` column.
+- `predict()` and `predict_proba()` accept a DataFrame (the `target` column is ignored if present), 
+- The argument `target_col` defaults to `"target"` everywhere for consistency across the entire framework.
+
+---
+
+### Example Structure (RandomForest Wrapper)
+
+A minimal classifier wrapper looks as follows:
+
+```python
+class RandomForestCls:
+
+    def __init__(
+        self,
+        n_estimators: int = 200,
+        max_depth=None,
+        random_state: int = 0,
+        **kwargs
+    ):
+        self.name = "RandomForestCls"
+        self.model = RandomForestClassifier(
+            n_estimators=n_estimators,
+            max_depth=max_depth,
+            random_state=random_state,
+            **kwargs,
+        )
+
+    def fit(self, df: pd.DataFrame, target_col: str = "target"):
+        X, y = _split_X_y(df, target_col)
+        self.model.fit(X, y)
+        return self
+
+    def predict(self, data, target_col: str = "target"):
+        X = _to_X(data, target_col)
+        return self.model.predict(X)
+
+    def predict_proba(self, data, target_col: str = "target"):
+        X = _to_X(data, target_col)
+        return self.model.predict_proba(X)
+```
+
+The wrapper ensures that all classifiers behave identically from the perspective of Tasks and the SSL engine, regardless of the underlying model.
+
+---
+
+### Adding a Custom Classifier
+
+To integrate a new classifier:
+
+1. Create a wrapper class.
+2. Implement the required interface (`fit`, `predict`, `predict_proba`).
+3. Set `self.name`.
+4. Use the provided helper utilities (`_split_X_y`, `_to_X`) to maintain consistency.
+
+No modifications to the remaining system are required.
+
+---
+
+### Already Implemented Classifiers
+
+The following classifier wrappers are available out of the box:  
+TabPfnClassifier (TabPFN v2 default), NaiveBayesClassifier (variant="gaussian" or "multinomial"), MultinomialLogitClassifier (logistic regression + standardization), SmallNNClassifier (MLP + standardization), SVMClassifier (RBF SVC + standardization, probability=True), RandomForestCls, GradientBoostingCls, DecisionTreeCls, KNNClassifier (kNN + standardization).
+
 
 ## Decision Rules (pseudo-label selection logic)
 
-Decision rules encapsulate **how to pick** the next pseudo-labeled point (or generally: which candidate to select) based on labeled and pseudo-labeled sets.
+Decision rules implement the semi-supervised **selection step**: given a labeled dataset and a set of pseudo-labeled candidates, they decide which sample(s) should be selected next.
 
-### Decision rule contract
+Each decision rule follows a minimal contract to ensure that it can be swapped independently of datasets, classifiers, or tasks.
+
+---
+
+### Required Interface
+
 A decision rule is a class that implements:
 
-- `__init__(...)`: set `self.name` and optionally keep a classifier instance
-- `__call__(self, labeled: pd.DataFrame, pseudo: pd.DataFrame) -> int`
+- `__init__(...)`  
+  - Set `self.name`
+  - Optionally store a classifier instance (or wrapper) if the rule requires model predictions
 
-where the return value is the **row index** (integer) of the selected sample within `pseudo`.
+- `__call__(self, labeled: pd.DataFrame, pseudo: pd.DataFrame) -> int | list[int]`
 
-### Already implemented decision rules
-The following selection rules exist:
+The return value must be:
 
-- `maximalPPP`
-- `SSL_prob`
-- `SSL_confidence`
+- Either a single integer, or
+- A list of integers
+
+These integers correspond to the **row indices of the selected samples within `pseudo`**.
+
+In other words, the decision rule returns the index positions of the pseudo-labeled data points that should be added to the labeled dataset next.
 
 ---
 
-## How to extend the system
+### Example Structure (Maximal Probability Selection)
 
-### 1) Add a new dataset
-Create a new class in `data.py`:
-
-- Inherit from `BaseDataset`
-- Implement `_load()` returning a `pd.DataFrame`
-- Ensure the label column is called **`target`**
-
-Minimal skeleton:
+A typical decision rule takes a classifier, fits it on the labeled data, evaluates the pseudo candidates, and selects the most promising one.
 
 ```python
-class MyDataset(BaseDataset):
-    def __init__(self):
-        super().__init__(name="MyDataset")
+class SSL_prob:
 
-    def _load(self) -> pd.DataFrame:
-        df = ...  # build / load your dataframe
-        df["target"] = ...  # ensure target exists
-        return df
-## Test Settings
+    def __init__(self, Classifier):
+        self.name = "maximalProb"
+        self.model = Classifier
 
-The proposed algorithm serves as a foundation for multiple method variants differing in:
+    def prob(self, labeled, pseudo):
+        self.model.fit(labeled)
+        return self.model.predict_proba(pseudo)
 
-* model architecture,
-* stopping criteria.
+    def __call__(self, labeled, pseudo):
+        proba = self.prob(labeled, pseudo)
+        max_proba = np.max(proba, axis=0)
+        winner = int(np.argmax(max_proba))
+        return winner
+```
 
-Benchmarks include:
+The returned value (`winner`) is interpreted as the index of the chosen row in `pseudo`.
 
-* supervised learning,
-* SSL with ad-hoc selection strategies,
-* soft revision methods,
-* SLZ,
-* TabPFN-D.
-
-Experiments will be conducted on established tabular datasets under varying labeled/unlabeled ratios.
+If multiple samples are selected in one step, the rule may instead return a list of indices.
 
 ---
 
-## Results
+### Adding a Custom Decision Rule
 
-⬇️ **Place results here**
+To add a new selection strategy:
 
-This section is intentionally left as a placeholder for:
+1. Create a new decision rule class.
+2. Implement `__call__(labeled, pseudo)`.
+3. Return either:
+   - A single integer index, or
+   - A list of integer indices.
 
-* static preview plots (PNG),
-* links to interactive plots hosted via GitHub Pages,
-* quantitative result tables.
-
-Example structure:
-
-* `plots/…png` → shown below
-* `docs/…html` → interactive version
+No additional changes to the framework are required.
 
 ---
+
+### Already Implemented Decision Rules
+
+The following decision rules are available out of the box:  
+maximalPPP, SSL_prob, SSL_confidence.
+
 
 ## Disclaimer on the Use of LLMs
 
@@ -648,6 +775,85 @@ The use of large language models (LLMs) in the preparation of this work is outli
 * Spelling and grammar checking: **LLM used**
 
 ---
+
+## Tasks (experiment orchestration)
+
+Tasks define *what to run*. They live as `.py` scripts inside the `tasks/` directory and act as the glue layer between:
+
+- datasets,
+- classifiers,
+- decision rules,
+- and the SSL engine.
+
+A task typically specifies a collection of **experiments**. Each experiment is defined by a configuration such as:
+
+- dataset
+- number of labeled samples `n`
+- number of unlabeled samples `m`
+- classifier
+
+During execution, an experiment is internally split into **subexperiments**: for each decision rule, the same base experiment configuration is executed once. This enables efficient resource usage (e.g., some decision rules or classifiers may require GPUs, while others run efficiently on CPUs).
+
+---
+
+### Task Structure
+
+A task script usually constructs an `experiments` list.  
+Each entry is a dictionary describing a single experiment configuration and the functions used by the SSL pipeline.
+
+A typical configuration contains:
+
+- `n`, `m`  
+  Number of labeled and unlabeled points used per seed.
+
+- `Data`  
+  A dataset object (instance of a `BaseDataset` subclass).
+
+- `Classifier`  
+  A classifier wrapper object.
+
+- `Decision`  
+  A decision rule (selection logic).  
+  This field is what creates **subexperiments**: one experiment configuration is run once *per decision rule*.
+
+- `Sampler` *(currently fixed)*  
+  A sampling function that, for each seed, draws:
+  - labeled data
+  - unlabeled data
+  - a test set  
+  from the dataset.
+
+- `Evaluation` *(currently fixed)*  
+  An evaluation function. At the moment it returns a **confusion matrix** for the test set.
+
+- `Predict`  
+  A prediction function used to obtain model predictions during evaluation.
+
+> **Note:** `Sampler` and `Evaluation` are currently fixed across tasks, but are designed to be replaceable in future versions (e.g., alternative sampling strategies or evaluation metrics).
+
+---
+
+### Experiments vs. Subexperiments
+
+- An **experiment** is defined by the base configuration (dataset, `n`, `m`, classifier).
+- A **subexperiment** is created by pairing this base configuration with one specific decision rule.
+
+In other words, if a task defines one experiment configuration and three decision rules, the system will execute **three subexperiments**.
+
+This design also makes it straightforward to introduce additional features such as a **stopping criterion** (e.g., stop after no improvement, max iterations, confidence threshold), which can be attached at the task level in future extensions.
+
+---
+
+### Adding a Custom Task
+
+To add a new task:
+
+1. Create a new `.py` file in `tasks/` (e.g., `my_task.py`).
+2. Define your experiment configurations (typically as a list of dictionaries).
+3. Specify dataset(s), classifier(s), and decision rule(s).
+4. Run the task via the interactive runner (`run_interactive.py`).
+
+No changes to the remaining framework are required.
 
 *This repository represents an ongoing research project and will be extended with experimental results and code.*
 
