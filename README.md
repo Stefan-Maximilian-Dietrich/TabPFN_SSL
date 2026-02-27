@@ -5,10 +5,13 @@
 [![codecov](https://codecov.io/gh/Stefan-Maximilian-Dietrich/TabPFN_SSL/branch/main/graph/badge.svg)](https://app.codecov.io/github/stefan-maximilian-dietrich/tabpfn_ssl)
 # Bayesian Pseudo-Label Selection with Prior-Data Fitted Networks
 
-**Project proposal & research repository**
+**Research Repository**
 
-Author: **Stefan Maximilian Dietrich**
-Date: **October 2025**
+This project was developed as part of the course **Applied Deep Learning**  
+and supervised by **Prof. Dr. David Rügamer**.
+
+Author: **Stefan Maximilian Dietrich**  
+Date: **February 2026**
 
 ---
 
@@ -24,17 +27,13 @@ Date: **October 2025**
 * [Disclaimer on the Use of LLMs](#disclaimer-on-the-use-of-llms)
 
 ---
-flowchart TD
-    A[Input Data] --> B[Preprocessing]
-    B --> C[Model]
-    C --> D[Prediction]
-## Theoretical Background
+# Theoretical Background
 
 This repository builds on a decision-theoretic perspective on semi-supervised learning (SSL), combining Bayesian pseudo-label selection with Prior-Data Fitted Networks (PFNs), in particular TabPFN.
 
 ---
 
-### 1) Bayesian Pseudo-Label Selection in SSL
+## 1) Bayesian Pseudo-Label Selection in SSL
 
 Obtaining labeled data is often costly, time-consuming, and dependent on expert knowledge, whereas unlabeled data are typically abundant and easy to collect. This imbalance has led to the rise of semi-supervised learning (SSL), with self-training (or pseudo-labeling) being one of the most widely used approaches [McClosky et al., 2006](https://aclanthology.org/N06-1020/) [Lee, 2013](https://www.researchgate.net/publication/280581078) [Shi et al., 2018](https://www.researchgate.net/publication/328123705). Self-training iteratively adds pseudo-labeled instances to the training set based on predictions from a model trained on labeled data. A crucial step in this process is pseudo-label selection (PLS), which determines which pseudo-labeled instances to include.\footnote{Importantly, PLS refers to the selection of pseudo-labeled instances, not the pseudo-labels themselves.}
 
@@ -54,7 +53,7 @@ In[Rodemann et al., 2023A](https://arxiv.org/abs/2302.08883) and [Dietrich et al
 
 ---
 
-### 2) Prior-Data Fitted Networks and TabPFN
+## 2) Prior-Data Fitted Networks and TabPFN
 
 Prior-Data Fitted Networks (PFNs), as described in [Müller et al., 2022](https://arxiv.org/abs/2112.10510), are neural networks that directly approximate Bayesian inference by simulating the posterior predictive distribution (PPD) of a given prior. Formally, the PPD integrates over all possible hypotheses $\varphi \in \Phi$ of the data-generating process:
 
@@ -76,7 +75,7 @@ This motivates the use of TabPFN to compute the posterior predictive distributio
 
 ---
 
-### 3) SSL with PFNs: Decision-Theoretic Selection via Posterior Predictives
+## 3) SSL with PFNs: Decision-Theoretic Selection via Posterior Predictives
 As stated in the second theorem in [Rodemann et al., 2023A](https://arxiv.org/abs/2302.08883), for our purposes it holds that:
 
 $$ p(D \cup (x_i, \hat{y}_i) \mid D) = p(\hat{y}_i \mid x_i, D) $$
@@ -85,7 +84,7 @@ This implies that the selection based on the TabPFN-calculated PPD approximation
 
 The computational efficiency demonstrated in [Hollmann et al., 2023](https://arxiv.org/abs/2207.01848) further improves scalability, allowing larger datasets and higher-capacity models to be handled effectively. A promising extension would involve defining a multi-objective utility function over multiple PFNs, analogous to a multi-model likelihood approach.
 
-## Results
+# Results
 
 This section presents preliminary experimental results of the proposed method.  
 The figures below illustrate training dynamics under different dataset configurations and hyperparameter settings.
@@ -95,7 +94,7 @@ The figures below illustrate training dynamics under different dataset configura
 
 ---
 
-### Experimental Configurations
+## Experimental Configurations
 
 We report results across multiple datasets and varying labeled/unlabeled splits:
 
@@ -105,6 +104,7 @@ We report results across multiple datasets and varying labeled/unlabeled splits:
 
 Each plot shows performance trends across training iterations.
 
+## Results
 ---
 
 <table>
@@ -153,7 +153,7 @@ Each plot shows performance trends across training iterations.
 
 ---
 
-### Observations (Preliminary)
+## Observations
 
 - Performance improves steadily as unlabeled data increases.
 - Smaller α values show more stable convergence in balanced settings.
@@ -163,7 +163,7 @@ Each plot shows performance trends across training iterations.
 Further statistical evaluation and ablation studies will be added in future updates.
 
 ---
-## Installation
+# Installation
 
 This repository relies on [uv](https://docs.astral.sh/uv/) for managing the virtual environment and project dependencies.  
 Please ensure that `uv` is installed before continuing.
@@ -190,7 +190,7 @@ Follow the steps below to set up the project locally:
    uv pip install -e .
    ```
 
-## How to Use
+# How to Use
 
 The repository supports both local execution and cluster-based execution (LRZ AI Systems).  
 From a user perspective, the workflow is identical in both cases — the same script is used and the same interactive interface appears.
@@ -423,7 +423,7 @@ evaluation/plots/
 
 The generated figures correspond exactly to the plots shown in the **Results** section of this repository.
 ---
-# Modular Architecture & Extensibility
+# Dokumentation (Modular Architecture & Extensibility)
 This project is intentionally **modular**: you can extend or swap components without touching the rest of the system.  
 The four core building blocks are:
 
@@ -851,14 +851,13 @@ changing dataset, classifier, or decision rule does not require modifications el
 *This repository represents an ongoing research project and will be extended with experimental results and code.*
 
 
+# Citation and Licennce
 
 
 Proper citation is appreciated if this project contributes to published or submitted work.
 ---
 
 
-
-```
 ## Citation
 
 If you use this repository in academic work, research projects, or derivative implementations, please cite it as follows:
