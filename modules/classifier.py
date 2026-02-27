@@ -17,7 +17,7 @@ from tabpfn.constants import ModelVersion
 def _split_X_y(df: pd.DataFrame, target_col: str = "target"):
 
     if target_col not in df.columns:
-        raise ValueError(f"Zielspalte '{target_col}' nicht im DataFrame gefunden.")
+        raise ValueError(f"Target column '{target_col}' not found in the DataFrame.")
     X = df.drop(columns=[target_col]).values
     y = df[target_col].values
     return X, y
@@ -65,7 +65,7 @@ class NaiveBayesClassifier:
         elif variant == "multinomial":
             self.model = MultinomialNB(**kwargs)
         else:
-            raise ValueError("variant muss 'gaussian' oder 'multinomial' sein")
+            raise ValueError("variant must be 'gaussian' or 'multinomial'")
 
     def fit(self, df: pd.DataFrame, target_col: str = "target"):
         X, y = _split_X_y(df, target_col)
@@ -103,7 +103,7 @@ class MultinomialLogitClassifier:
 
     def _check_fitted(self):
         if not self._fitted:
-            raise RuntimeError("Model wurde noch nicht mit fit() trainiert.")
+            raise RuntimeError("The model has not been trained with fit() yet.")
 
     def predict(self, data, target_col: str = "target"):
         self._check_fitted()
@@ -147,7 +147,7 @@ class SmallNNClassifier:
 
     def _check_fitted(self):
         if not self._fitted:
-            raise RuntimeError("Model wurde noch nicht mit fit() trainiert.")
+            raise RuntimeError("The model has not been trained with fit() yet.")
 
     def predict(self, data, target_col: str = "target"):
         self._check_fitted()
@@ -168,7 +168,7 @@ class SVMClassifier:
     def __init__(self, C: float = 1.0, gamma: str = "scale", probability: bool = True, **kwargs):
         self.name = "SVMClassifier"
         self.scaler = StandardScaler()
-        # probability=True, damit predict_proba verfügbar ist
+        # probability=True so that predict_proba is available
         self.model = SVC(C=C, gamma=gamma, probability=probability, **kwargs)
         self._fitted = False
 
@@ -181,7 +181,7 @@ class SVMClassifier:
 
     def _check_fitted(self):
         if not self._fitted:
-            raise RuntimeError("Model wurde noch nicht mit fit() trainiert.")
+            raise RuntimeError("The model has not been trained with fit() yet.")
 
     def predict(self, data, target_col: str = "target"):
         self._check_fitted()
@@ -300,7 +300,7 @@ class KNNClassifier:
 
     def _check_fitted(self):
         if not self._fitted:
-            raise RuntimeError("Model wurde noch nicht mit fit() trainiert.")
+            raise RuntimeError("The model has not been trained with fit() yet.")
 
     def predict(self, data, target_col: str = "target"):
         self._check_fitted()
