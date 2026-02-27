@@ -1,9 +1,4 @@
 #!/bin/bash
-#
-# Submit-Beispiel:
-# sbatch --job-name="TabPFN_EXP3" --export=ALL,EXP_NUM=3 train_seeds_multinode.slurm
-#
-# EXP_NUM kommt aus der Umgebung (via --export). Default = 0.
 
 #SBATCH --output=logs/%x-%j.out
 #SBATCH --error=error/%x-%j.err
@@ -18,21 +13,16 @@
 
 set -euo pipefail
 
-# >>> HIER deinen Token einfügen (den aus deinem Projekt):
-# Load secrets (not tracked by git)
 source ~/.secrets/hf.env
 
-# Fail fast if token missing
+# Fail if token missing
 if [ -z "$HUGGINGFACE_HUB_TOKEN" ]; then
   echo "ERROR: HUGGINGFACE_HUB_TOKEN is not set. Create ~/.secrets/hf.env"
   exit 1
 fi
 
-#export PYTHONPATH=/workspace:$PYTHONPATH
 
-############################
-# Konfiguration des Experiments
-############################
+# configuration 
 EXP_DIR=/dss/dsshome1/03/di35lox/SSH/TabPFN_SSL
 IMG=/dss/dsshome1/03/di35lox/containers/nvidia+pytorch+23.10-py3.sqsh
 
@@ -44,10 +34,9 @@ TASK_FILE="${TASK_FILE:-tasks/experiments.py}"
 
 cd "$EXP_DIR"
 
-# Wichtig: SLURM öffnet Output/Error sehr früh. Daher sollten die Ordner existieren.
 mkdir -p logs error
 
-# Ergebnisordner
+# results directory 
 export RESULTS_DIR="$EXP_DIR/Results/"
 mkdir -p "$RESULTS_DIR"
 
@@ -65,12 +54,9 @@ echo "BASE_SEED       = $BASE_SEED"
 echo "EXP_NUM         = $EXP_NUM"
 echo "=================================================="
 
-############################
-# Distributed / torchrun Setup
-############################
+# run setup
 export NCCL_DEBUG=WARN
 
-# Fallback, falls SLURM_GPUS_ON_NODE nicht gesetzt ist
 GPUS_ON_NODE="${SLURM_GPUS_ON_NODE:-1}"
 
 export WORLD_SIZE=$(( SLURM_NNODES * GPUS_ON_NODE ))
@@ -84,12 +70,10 @@ echo "GPUs per node   = $GPUS_ON_NODE"
 echo "MASTER_ADDR     = $MASTER_ADDR"
 echo "MASTER_PORT     = $MASTER_PORT"
 
-############################
-# Laufzeitmessung starten
-############################
+# runtime measurment
 START_TS=$(date +%s)
 
-# ====== Container + torchrun ======
+# Container + torchrun 
 srun -N"$SLURM_NNODES" \
   --ntasks-per-node=1 \
   --container-mounts="$EXP_DIR:/workspace" \
@@ -107,9 +91,8 @@ srun -N"$SLURM_NNODES" \
         --base-seed="$BASE_SEED" \
         --exp-num="$EXP_NUM"
 
-############################
-# Laufzeit ausgeben + Zusammenfassung
-############################
+
+# return runtime and summary 
 END_TS=$(date +%s)
 RUNTIME_SEC=$((END_TS - START_TS))
 

@@ -13,10 +13,8 @@ def run_one_seed(task_path: str, seed: int, jobid: str, rank: int, results_dir: 
 
     task_module = importlib.import_module(module_name)
 
-    # Zugriff auf Funktionen
     exp = getattr(task_module, "Experiments")
 
-    # 6) Ergebnisse als CSV speichern
     exp = task_module.Experiments[experiment_nr]
     n = exp["n"]    
     m = exp["m"]
@@ -34,7 +32,7 @@ def run_one_seed(task_path: str, seed: int, jobid: str, rank: int, results_dir: 
     result_sl = ssl.run_SL(seed)
     print("Ende")
 
-    #Gener Path
+    #Generic Path
     experiment_dir_1lv = os.path.join(results_dir, f"{Data.name}_{n}")
     os.makedirs(experiment_dir_1lv, exist_ok=True)
     experiment_dir_2lv = os.path.join(experiment_dir_1lv, f"unlabled_{m}")
@@ -55,8 +53,6 @@ def run_one_seed(task_path: str, seed: int, jobid: str, rank: int, results_dir: 
     functions.save_confusion_matrices_long(result=result_sl, csv_path=csv_path_sl, jobid=jobid, rank=rank, seed=seed)
 
     print(csv_path)
-
-    ### speichermethode finden conf mat als csv 
 
     print(f"[Rank: {rank}] Seed: {seed} DONE")
     print(f"path: {csv_path}")

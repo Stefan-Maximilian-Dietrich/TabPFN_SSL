@@ -13,13 +13,13 @@ def load_task_module(task_path: str):
     full_path = (repo_root / task_path).resolve()
     spec = importlib.util.spec_from_file_location("task_module", str(full_path))
     module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)  # type: ignore
+    spec.loader.exec_module(module)  
     return module
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--task", type=str, default="tasks/experiments.py",
-                    help="Pfad zum Task-Sheet unterhalb des Repo-Roots (z.B. tasks/experiments.py)")
+                    help="Path to the task sheet under the repo root (e.g. tasks/experiments.py)")
 
     parser.add_argument("--num-seeds", type=int, required=True)
     parser.add_argument("--base-seed", type=int, default=0)
@@ -33,7 +33,6 @@ def main():
     rank = int(os.getenv("RANK", "0"))
     local_rank = int(os.getenv("LOCAL_RANK", "0"))
 
-    # Ergebnisse-Basisordner vom Slurm-Skript
     results_dir = os.getenv("RESULTS_DIR", "results")
 
     if torch.cuda.is_available():
@@ -54,12 +53,12 @@ def main():
     end_index = min(total_seeds, (rank + 1) * seeds_per_rank)
 
     if start_index >= total_seeds:
-        print(f"Rank {rank}: keine Seeds zugewiesen.")
+        print(f"Rank {rank}: no seeds assigned.")
         return
 
     for seed_index in range(start_index, end_index):
         seed_id = args.base_seed + seed_index
-        print(f"\n=== Rank {rank}: starte Seed {seed_id} ===")
+        print(f"\n=== Rank {rank}: starting seed {seed_id} ===")
         run_one_seed(task_path, seed_id, jobid, rank, results_dir, experiment_nr)
 
 if __name__ == "__main__":

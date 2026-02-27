@@ -12,7 +12,6 @@ MODEL_RUNNER = REPO / "scripts" / "model_runner.py"
 
 
 def main() -> int:
-    # Ergebnisse in einen definierten Ordner schreiben (kann im Test via ENV überschrieben werden)
     os.environ.setdefault("RESULTS_DIR", str(REPO / "results_smoke"))
 
     cmd = [

@@ -15,7 +15,7 @@ class upsample: #checked
         n_labeled = self.n  
         n_unlabeled = self.m 
         classes = df["target"].unique()
-        k = 1  # mindestens 1 pro Klasse
+        k = 1  # min 1 per class 
         labeled_idx = []
         np.random.seed(seed)
         for c in classes:
@@ -111,7 +111,7 @@ def save_confusion_matrices_long(result, csv_path, jobid, rank, seed):
     os.makedirs(os.path.dirname(csv_path), exist_ok=True)
 
 
-    conf_list = result # Liste von Matrizen
+    conf_list = result # matrix list 
 
     with open(csv_path, "w", newline="") as f:
         writer = csv.DictWriter(
@@ -120,10 +120,10 @@ def save_confusion_matrices_long(result, csv_path, jobid, rank, seed):
                 "jobid",
                 "rank",
                 "seed",
-                "cm_index",   # Index der Matrix in der Liste
-                "true",       # wahrer Label
-                "pred",       # vorhergesagter Label
-                "count",      # Häufigkeit
+                "cm_index",   
+                "true",       
+                "pred",      
+                "count",      
             ],
         )
         writer.writeheader()
