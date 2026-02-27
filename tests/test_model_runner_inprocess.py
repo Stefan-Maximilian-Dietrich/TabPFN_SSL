@@ -58,7 +58,7 @@ def test_model_runner_no_seeds_assigned(monkeypatch, tmp_path, capsys):
     monkeypatch.setattr(mr.torch.cuda, "is_available", lambda: False)
 
     # world_size=4, total_seeds=2 => seeds_per_rank=ceil(2/4)=1
-    # rank=3 => start_index=3*1=3 >= total_seeds => should print "keine Seeds"
+    # rank=3 => start_index=3*1=3 >= total_seeds => should print "no Seeds"
     monkeypatch.setenv("WORLD_SIZE", "4")
     monkeypatch.setenv("RANK", "3")
     monkeypatch.setenv("LOCAL_RANK", "0")
@@ -82,4 +82,4 @@ def test_model_runner_no_seeds_assigned(monkeypatch, tmp_path, capsys):
 
     mr.main()
     out = capsys.readouterr().out
-    assert "keine Seeds zugewiesen" in out
+    assert "no seeds assigned" in out

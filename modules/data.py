@@ -8,10 +8,7 @@ from sklearn.datasets import (
     make_classification,
 )
 
-# ---------------------------------------------------------------------
-# Basisklasse
-# ---------------------------------------------------------------------
-
+# base class 
 class BaseDataset:
     target_col = "target"
 
@@ -26,7 +23,6 @@ class BaseDataset:
         raise NotImplementedError
 
     def _update_stats(self, df: pd.DataFrame):
-        """Setzt n_instances, n_predictors, n_classes basierend auf dem DataFrame."""
         self.n_instances = len(df)
 
         if self.target_col in df.columns:
@@ -41,11 +37,8 @@ class BaseDataset:
             df = self._load()
 
             if self.target_col in df.columns:
-                # 1. erst als Kategorie interpretieren
                 df[self.target_col] = df[self.target_col].astype("category")
-                # 2. Original-Kategorien speichern (falls man die später braucht)
                 df.attrs["target_categories"] = list(df[self.target_col].cat.categories)
-                # 3. dann in Integer-Codes 0,1,2,... umwandeln
                 df[self.target_col] = df[self.target_col].cat.codes.astype(int)
 
             if "data_name" not in df.attrs:
@@ -56,9 +49,7 @@ class BaseDataset:
 
         return self._df
 
-# ---------------------------------------------------------------------
-# Konkrete Datensatz-Klassen
-# ---------------------------------------------------------------------
+# real classes 
 
 class BreastCancer(BaseDataset):
     def __init__(self):
@@ -88,9 +79,7 @@ class Iris(BaseDataset):
 
 
 class Bank(BaseDataset):
-    """
-    Swiss banknotes (genuine vs. fake).
-    """
+
 
     def __init__(self):
         super().__init__(name="Bank")
@@ -118,9 +107,7 @@ class Bank(BaseDataset):
 
 
 class MtcarsVS(BaseDataset):
-    """
-    mtcars mit target = vs, Features mpg, cyl, disp.
-    """
+
 
     def __init__(self):
         super().__init__(name="Mtcars")
@@ -138,10 +125,7 @@ class MtcarsVS(BaseDataset):
 
 
 class Cassini(BaseDataset):
-    """
-    Cassini-ähnlicher 3-Klassen-Datensatz in 2D.
-    target ~ x1 + x2
-    """
+
 
     def __init__(self, n_samples: int = 1000, random_state: int = 1):
         super().__init__(name="Cassini")
@@ -171,10 +155,7 @@ class Cassini(BaseDataset):
 
 
 class Circle2D(BaseDataset):
-    """
-    Zwei-Kreis-Datensatz.
-    target ~ x1 + x2
-    """
+
 
     def __init__(
         self,
@@ -207,9 +188,7 @@ class Circle2D(BaseDataset):
 
 
 class Seeds(BaseDataset):
-    """
-    UCI Seeds Dataset.
-    """
+ 
 
     def __init__(self):
         super().__init__(name="Seeds")
@@ -246,10 +225,7 @@ class Seeds(BaseDataset):
 
 
 class Spirals(BaseDataset):
-    """
-    Two-spirals Datensatz.
-    target ~ X1 + X2
-    """
+
 
     def __init__(self, n_samples: int = 500, noise: float = 0.02, random_state: int = 0):
         super().__init__(name="Spirals")
@@ -281,9 +257,7 @@ class Spirals(BaseDataset):
 
 
 class Wine(BaseDataset):
-    """
-    UCI Wine (sklearn.load_wine), target + 13 Features.
-    """
+ 
 
     def __init__(self):
         super().__init__(name="Wine")

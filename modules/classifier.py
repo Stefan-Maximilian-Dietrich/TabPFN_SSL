@@ -15,11 +15,7 @@ from tabpfn.constants import ModelVersion
 
 
 def _split_X_y(df: pd.DataFrame, target_col: str = "target"):
-    """
-    Interne Hilfsfunktion:
-    - nimmt einen DataFrame
-    - trennt in X (alle Spalten außer target_col) und y (target_col)
-    """
+
     if target_col not in df.columns:
         raise ValueError(f"Zielspalte '{target_col}' nicht im DataFrame gefunden.")
     X = df.drop(columns=[target_col]).values
@@ -28,11 +24,7 @@ def _split_X_y(df: pd.DataFrame, target_col: str = "target"):
 
 
 def _to_X(data, target_col: str = "target"):
-    """
-    Interne Hilfsfunktion für predict/predict_proba:
-    - Wenn DataFrame: entferne target_col, falls vorhanden
-    - Sonst: wandle in NumPy-Array um
-    """
+
     if isinstance(data, pd.DataFrame):
         if target_col in data.columns:
             data = data.drop(columns=[target_col])
@@ -42,9 +34,7 @@ def _to_X(data, target_col: str = "target"):
 
 
 class TabPfnClassifier:
-    """
-    Wrapper für TabPFN-Modelle
-    """
+ 
 
     def __init__(self, **kwargs):
         self.name = "TabPFNClassifier"
@@ -65,9 +55,7 @@ class TabPfnClassifier:
 
 
 class NaiveBayesClassifier:
-    """
-    Naive Bayes (Gaussian oder Multinomial).
-    """
+
 
     def __init__(self, variant: str = "gaussian", **kwargs):
         self.name = "NaiveBayesClassifier"
@@ -94,9 +82,7 @@ class NaiveBayesClassifier:
 
 
 class MultinomialLogitClassifier:
-    """
-    Multinomiale logistische Regression (Logit-Modell) mit Standardisierung.
-    """
+
 
     def __init__(self, max_iter: int = 1000, **kwargs):
         self.name = "MultinomialLogitClassifier"
@@ -133,9 +119,7 @@ class MultinomialLogitClassifier:
 
 
 class SmallNNClassifier:
-    """
-    Kleines neuronales Netz (MLPClassifier) mit Standardisierung.
-    """
+
 
     def __init__(
         self,
@@ -179,9 +163,7 @@ class SmallNNClassifier:
 
 
 class SVMClassifier:
-    """
-    Support Vector Machine (RBF-Kernel) mit Standardisierung.
-    """
+
 
     def __init__(self, C: float = 1.0, gamma: str = "scale", probability: bool = True, **kwargs):
         self.name = "SVMClassifier"
@@ -215,9 +197,7 @@ class SVMClassifier:
 
 
 class RandomForestCls:
-    """
-    Random Forest Klassifikator.
-    """
+
 
     def __init__(
         self,
@@ -249,9 +229,6 @@ class RandomForestCls:
 
 
 class GradientBoostingCls:
-    """
-    Gradient Boosting Klassifikator.
-    """
 
     def __init__(
         self,
@@ -283,9 +260,6 @@ class GradientBoostingCls:
 
 
 class DecisionTreeCls:
-    """
-    Entscheidungsbaum-Klassifikator.
-    """
 
     def __init__(self, max_depth=None, random_state: int = 0, **kwargs):
         self.name = "DecisionTreeCls"
@@ -310,10 +284,7 @@ class DecisionTreeCls:
 
 
 class KNNClassifier:
-    """
-    k-Nearest Neighbors (mit expliziter Standardisierung, ohne make_pipeline).
-    """
-
+ 
     def __init__(self, n_neighbors: int = 2, **kwargs):
         self.name = "KNNClassifier"
         self.scaler = StandardScaler()
