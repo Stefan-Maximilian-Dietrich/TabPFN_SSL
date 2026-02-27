@@ -36,14 +36,7 @@ def _discover_classifier_classes():
 
 @pytest.mark.parametrize("cls", _discover_classifier_classes())
 def test_classifier_init_fit_predict_smoke(cls):
-    """
-    For each classifier class in modules.classifier:
-      - instantiate (if possible)
-      - fit on a small DataFrame
-      - predict on the same DataFrame
-      - check basic interface contracts
-    This is a high-coverage, low-cost smoke test.
-    """
+
     df = _make_df(40)
 
     try:
@@ -64,8 +57,6 @@ def test_classifier_init_fit_predict_smoke(cls):
 
 
 def test_classifier_module_has_at_least_one_classifier():
-    """
-    Sanity check so the parametrized test isn't silently empty.
-    """
+
     classes = _discover_classifier_classes()
     assert classes, "No classifier classes discovered in modules.classifier."

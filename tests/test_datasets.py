@@ -77,8 +77,7 @@ def _discover_dataset_classes() -> List[Type[ds.BaseDataset]]:
     return out
 
 
-# Factories for classes that require __init__ args.
-# Everything else is instantiated with the default constructor.
+
 _FACTORIES: Dict[str, Callable[[], ds.BaseDataset]] = {
     "Cassini": lambda: ds.Cassini(n_samples=80, random_state=1),
     "Circle2D": lambda: ds.Circle2D(n_samples=80, noise=0.05, factor=0.5, random_state=1),

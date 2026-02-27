@@ -5,26 +5,20 @@ import pytest
 
 
 def _import_decision_module():
-    """
-    Robust import:
-    - prefer modules.decision (typical project layout)
-    - fallback to scripts.decision
-    - fallback to top-level decision.py
-    """
     try:
-        from modules import decision as decision_mod  # type: ignore
+        from modules import decision as decision_mod  
         return decision_mod
     except Exception:
         pass
 
     try:
-        from scripts import decision as decision_mod  # type: ignore
+        from scripts import decision as decision_mod  
         return decision_mod
     except Exception:
         pass
 
     try:
-        import decision as decision_mod  # type: ignore
+        import decision as decision_mod  
         return decision_mod
     except Exception:
         return None
@@ -50,7 +44,6 @@ class DummyTabPFN:
 
 
 class DummyProbClassifier:
-    """Generic classifier implementing fit + predict_proba (+ predict)."""
 
     name = "dummy_prob"
 
@@ -103,10 +96,7 @@ def _discover_decision_classes():
 
 
 def _try_instantiate(decision_cls):
-    """
-    Try to instantiate a decision class.
-    Many take (Classifier) in __init__, some take no args.
-    """
+
     try:
         return decision_cls(DummyProbClassifier())
     except TypeError:
@@ -118,14 +108,7 @@ def _try_instantiate(decision_cls):
 
 @pytest.mark.parametrize("decision_cls", _discover_decision_classes())
 def test_all_decision_methods_smoke(monkeypatch, decision_cls):
-    """
-    Generic smoke test for decision methods:
-    - patch TabPFNClassifier to DummyTabPFN (if present)
-    - instantiate decision class (Classifier arg if possible)
-    - call decision(labeled, pseudo)
-    - if it errors, xfail (keeps CI green but still executes lines for coverage)
-    - otherwise assert returned index is valid
-    """
+
     # avoid gated model downloads, if the decision module uses TabPFNClassifier
     if hasattr(decision_mod, "TabPFNClassifier"):
         monkeypatch.setattr(decision_mod, "TabPFNClassifier", DummyTabPFN)

@@ -36,11 +36,6 @@ def test_confusion_class_usage_dataframe_inputs():
 
 
 def test_predictor_returns_dataframe_with_expected_shape_and_columns():
-    """
-    In this repo, predictor(model)(labeled, unlabeled) returns a DataFrame
-    (typically unlabeled augmented with predictions / pseudo labels).
-    We assert stable interface properties instead of assuming a y_pred vector.
-    """
     labeled = _make_df(6)
     unlabeled = _make_df(4)
 

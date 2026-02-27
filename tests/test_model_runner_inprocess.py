@@ -3,11 +3,6 @@ import sys
 
 
 def test_model_runner_assigns_correct_seed_range(monkeypatch, tmp_path):
-    """
-    Tests scripts/model_runner.py in-process by patching run_one_seed.
-    This covers argument parsing and seed partition logic.
-    """
-    # Import in a way that works with our conftest.py sys.path adjustments
     import scripts.model_runner as mr
 
     calls = []

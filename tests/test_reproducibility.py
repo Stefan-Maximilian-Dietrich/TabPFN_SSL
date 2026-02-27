@@ -5,15 +5,8 @@ import scripts.functions as fun
 
 
 def _fingerprint(df: pd.DataFrame) -> tuple:
-    """
-    Make a stable fingerprint of a split. We avoid relying on DataFrame index,
-    because some samplers may reset/reorder indices.
-    """
-    # sort columns to be robust to column order
     cols = sorted(df.columns)
-    # use values rounded a bit to avoid float noise
     vals = df[cols].to_numpy()
-    # build a lightweight fingerprint: shape + per-column sums + target counts
     target_counts = tuple(df["target"].value_counts(dropna=False).sort_index().tolist())
     col_sums = tuple(vals.sum(axis=0).round(6).tolist())
     return (df.shape, target_counts, col_sums)

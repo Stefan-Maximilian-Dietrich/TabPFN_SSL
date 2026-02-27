@@ -6,7 +6,7 @@ import modules.data as ds
 
 
 def test_upsample_returns_correct_sizes():
-    data = ds.BreastCancer()()  # DataFrame :contentReference[oaicite:14]{index=14}
+    data = ds.BreastCancer()()  
     n, m = 20, 10
     sampler = fun.upsample(n=n, m=m, Data=data)
 

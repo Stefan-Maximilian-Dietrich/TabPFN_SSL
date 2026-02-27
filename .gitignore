@@ -1,6 +1,4 @@
-# =========================
 # Slurm / Cluster Outputs
-# =========================
 logs/
 error/
 results/
@@ -9,9 +7,7 @@ Results/
 *.err
 slurm-*.out
 
-# =========================
 # Experiment Outputs
-# =========================
 *.csv
 *.tsv
 *.log
@@ -20,9 +16,7 @@ slurm-*.out
 *.pt
 *.pth
 
-# =========================
 # Python
-# =========================
 __pycache__/
 *.pyc
 *.pyo
@@ -35,48 +29,34 @@ __pycache__/
 venv/
 env/
 
-# =========================
 # Build / Packaging
-# =========================
 build/
 dist/
 *.egg-info/
 *.egg
 pip-wheel-metadata/
 
-# =========================
 # uv
-# =========================
-# (uv.lock MUSS committed werden!)
-# uv.lock
 .coverage
 coverage.xml
 *.egg-info/
-# =========================
+
 # Jupyter
-# =========================
 .ipynb_checkpoints/
 
-# =========================
 # IDE / Editor
-# =========================
 .vscode/
 .idea/
 
-# =========================
 # macOS
-# =========================
 .DS_Store
 
-# =========================
 # Secrets / Tokens
-# =========================
 .env
 .env.*
 secrets/
 
-# --- Evaluation Outputs (auto-generated) ---
-
+# Evaluation Outputs 
 evaluation/summary_results.csv
 evaluation/summary_results_colored.html
 evaluation/plots/
