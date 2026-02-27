@@ -21,11 +21,7 @@ def _strip_prefix(name: str, prefix: str) -> str:
 
 
 def build_plot_data(results_dir: str = "results") -> pd.DataFrame:
-    """
-    Returns long DF with:
-    dataset, Labled data, unlabled data, classifyer, decision funktion, seed, iteration, acc
-    where iteration is shifted to start at 0 per seed-run.
-    """
+
     results_path = Path(results_dir)
     if not results_path.exists():
         raise FileNotFoundError(f"results_dir not found: {results_path.resolve()}")
