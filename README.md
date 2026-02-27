@@ -289,7 +289,6 @@ If no value is entered, the default values are used.
 The selected experiments are then executed sequentially according to the chosen configuration.
 
 ---
-
 ### Evaluation Mode
 
 Evaluation is handled via an interactive evaluation script. Run:
@@ -301,65 +300,52 @@ uv run python evaluate_interactive.py
 After starting the script, you can choose between two evaluation outputs:
 
 ```
-Willst du eine Tabulare Übersicht oder eine Grafik machen?
-  1) Tabulare Übersicht
-  2) Grafik (Accuracy vs. Iteration)
-Auswahl (1/2):
+Would you like to create a tabular summary or a plot?
+  1) Tabular Summary
+  2) Plot (Accuracy vs. Iteration)
+Selection (1/2):
 ```
 
 ---
 
 #### 1) Tabular Summary
 
-If you select **Tabulare Übersicht**, the system prints a concise summary **for each experiment configuration** (e.g., dataset, labeled/unlabeled set size, classifier, decision function). A typical output looks like:
+If you select **Tabular Summary**, the system prints a concise overview **for each experiment configuration** (e.g., dataset, number of labeled/unlabeled samples, classifier, decision function).
+
+A typical output looks as follows:
 
 ```
 dataset:              Spirals
-labled data:          10
-unlabled data:        60
-classifier:           classifier_TabPFNClassifier
-decision function:    supervised
-seeds getestet:       100
-accuracy am anfang:   0.596116
-maximale accuracy:    0.596116
-accuracy am ende:     0.596116
+labeled data:         10
+unlabeled data:       100
+classifier:           classifyer_KNNClassifier
+decision function:    maximalPPP
+seeds tested:         33
+accuracy at start:    0.648873
+maximum accuracy:     0.814996
+accuracy at end:      0.784460
 ```
 
-In addition, the evaluation results are written/updated in the folder:
+In addition, the evaluation results are written to (or updated in):
 
-- `evaluation/` (e.g. a summary sheet such as `summary_results.csv`)
+- `evaluation/summary_results.csv`
+
+This file aggregates the results across all experiment configurations.
 
 ---
 
 #### 2) Plots (Accuracy vs. Iteration)
 
-If you select **Grafik**, the script shows which plots can be created. You can then select the plots you want, and the resulting figures are saved as `.png` files under:
+If you select **Plot**, the script displays which plots can currently be generated.  
+You may then select the desired plots interactively.
+
+The generated figures are saved as `.png` files in:
 
 - `evaluation/plots/`
 
-> **Note:** Plot generation is only performed if the experiments are complete, i.e., if every method was run with the same number of runs/seeds (so that curves are comparable).
-## Algorithmic Framework
+> **Note:** Plot generation is only performed if all experiment configurations are complete — meaning that each method was evaluated with the same number of runs/seeds to ensure fair comparability.
 
-**Pseudo-Label Selection with PFN**
-
-```
-Input:
-  Labeled data 𝓓
-  Unlabeled data 𝓤
-
-While stopping criterion not met:
-  Fit classifier on 𝓓
-  Predict pseudo-labels for all x ∈ 𝓤
-  Compute PPP(x, ŷ(x)) using TabPFN
-  Select a* = argmax PPP
-  Update:
-    𝓓 ← 𝓓 ∪ a*
-    𝓤 ← 𝓤 \ a*
-
-Output:
-  Final fitted classifier
-```
-
+The generated plots correspond to the figures shown in the **Results** section of this repository.
 ---
 ## Modular Architecture & Extensibility
 
