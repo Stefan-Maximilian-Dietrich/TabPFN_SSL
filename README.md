@@ -123,47 +123,44 @@ Each plot shows performance trends across training iterations.
 <table>
 <tr>
 <td align="center">
-<img src="cars_L_8_U_8_alp_0.5_random_100.png" width="400"/>
+<img src="ReadMe_pots/Spirals_L10_U20_classifyer_KNNClassifier.png" width="350"/>
 <br>
 <b>Cars — L=8, U=8, α=0.5</b>
 </td>
 
 <td align="center">
-<img src="cars_L_8_U_16_alp_0.5_random_100.png" width="400"/>
+<img src="cars_L_8_U_16_alp_0.5_random_100.png" width="350"/>
 <br>
 <b>Cars — L=8, U=16, α=0.5</b>
 </td>
-</tr>
 
-<tr>
 <td align="center">
-<img src="Cassini_L_96_U_96_alp_0.1_random_200.png" width="400"/>
+<img src="Cassini_L_96_U_96_alp_0.1_random_200.png" width="350"/>
 <br>
 <b>Cassini — L=96, U=96, α=0.1</b>
 </td>
-
-<td align="center">
-<img src="Cassini_L_96_U_96_alp_0.01_random_250.png" width="400"/>
-<br>
-<b>Cassini — L=96, U=96, α=0.01</b>
-</td>
 </tr>
 
 <tr>
 <td align="center">
-<img src="Penguins_L_6_U_192_alp_3e-05_random_100.png" width="400"/>
+<img src="Cassini_L_96_U_96_alp_0.01_random_250.png" width="350"/>
+<br>
+<b>Cassini — L=96, U=96, α=0.01</b>
+</td>
+
+<td align="center">
+<img src="Penguins_L_6_U_192_alp_3e-05_random_100.png" width="350"/>
 <br>
 <b>Penguins — L=6, U=192, α=3e−05</b>
 </td>
 
 <td align="center">
-<img src="Penguins_L_12_U_192_alp_3e-05_random_100.png" width="400"/>
+<img src="Penguins_L_12_U_192_alp_3e-05_random_100.png" width="350"/>
 <br>
 <b>Penguins — L=12, U=192, α=3e−05</b>
 </td>
 </tr>
 </table>
-
 ---
 
 ## Observations
