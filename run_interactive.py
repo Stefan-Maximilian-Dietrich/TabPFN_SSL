@@ -26,6 +26,7 @@ def list_task_files():
         return []
     return sorted([p for p in TASKS_DIR.glob("*.py") if p.is_file() and p.name != "__init__.py"])
 
+
 def ask_choice(title: str, options: list[str], default_index: int = 0) -> str:
     print(f"\n{title}")
     for i, opt in enumerate(options, 1):
@@ -52,9 +53,9 @@ def ask_int(prompt: str, default: int) -> int:
             print("Please enter an integer.")
 
 def ask_exp_list():
-    raw = input("Choose experiment: number (e.g. 3), range (e.g. 0-10) or 'all': ").strip().lower()
-    if raw in ("all", ""):
-        return list(range(0, 11))
+    raw = input("Choose experiment: number (e.g. 3) or range (e.g. 0-10): ").strip().lower()
+
+
     if re.fullmatch(r"\d+", raw):
         return [int(raw)]
     m = re.fullmatch(r"(\d+)\s*-\s*(\d+)", raw)
