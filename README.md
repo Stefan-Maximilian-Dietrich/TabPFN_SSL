@@ -511,10 +511,10 @@ flowchart LR
 %% CORE MODULES (large & rounded)
 %% =====================================
 
-CL(["<br/><br/>Classifier Module<br/><br/><br/>"])
-DR(["<br/><br/>Decision Rule Module<br/><br/><br/>"])
-DATA(["<br/><br/>Data Module<br/><br/><br/>"])
-T(["<br/><br/>Tasks<br/><br/><br/>"])
+CL[/"<br/><br/>Classifier Module<br/><br/><br/>"/]
+DR[/"<br/><br/>Decision Rule Module<br/><br/><br/>"/]
+DATA[/"<br/><br/>Data Module<br/><br/><br/>"/]
+T[/"<br/><br/>Tasks<br/><br/><br/>"/]
 
 CL -.-> DR
 
