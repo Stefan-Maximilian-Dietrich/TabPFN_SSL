@@ -259,15 +259,13 @@ If no input is provided, the default option is selected.
 Specify which experiment(s) to execute:
 
 ```
-Experiment wählen: Zahl (z.B. 3), Range (z.B. 0-10) oder 'all':
+Experiment wählen: Zahl (z.B. 3) or Range (z.B. 0-10):
 ```
 
 Supported formats:
 
 - `3` (single experiment)
 - `0-10` (range)
-- `all`
-
 ---
 
 #### 3) Configure Seeds
