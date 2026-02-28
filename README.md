@@ -242,11 +242,11 @@ This is the default mode when running outside the LRZ AI Systems environment.
 You will be prompted to choose one of the available task sheets:
 
 ```
-Welches Task-Sheet möchtest du ausführen?
+Which task sheet would you like to run?
 -> [1] Task_Spirals.py
    [2] local_smoke.py
    [3] toy_examples.py
-Auswahl (1-3) [default 1]:
+Selection (1-3) [default 1]:
 ```
 
 Enter the corresponding number.  
@@ -388,8 +388,8 @@ uv run python evaluate_interactive.py
 You can choose between:
 
 ```
-1) Tabular Summary
-2) Plot (Accuracy vs. Iteration)
+1) Tabular overview
+2) Plots
 ```
 
 ---
@@ -420,7 +420,7 @@ evaluation/summary_results.csv
 
 ---
 
-### Plots (Accuracy vs. Iteration)
+### Plots
 
 Plots can be generated interactively.
 
