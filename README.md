@@ -224,7 +224,7 @@ Several patterns are noteworthy:
 - In contrast to the heuristic methods, the PPP-based approach does not exhibit a clear saturation effect as additional unlabeled data is incorporated.
 - Accuracy continues to improve steadily as more pseudo-labeled instances are added.
 
-Overall, these results indicate that the theoretically motivated PPP criterion provides a substantial and increasingly pronounced benefit in this nonlinear classification setting.
+Overall, these results indicate that the theoretically motivated PPP criterion provides a substantial and increasingly pronounced benefit in this nonlinear classification setting. 
 
 ---
 # Installation
