@@ -5,37 +5,29 @@ import modules.decision as dec
 
 print("Toy Examples")
 DATASETS = [
-    ds.Spirals()
+    ds.Spirals(),
+    ds.Bank()
 ]
 
 CLASSIFIERS = [
-    cl.NaiveBayesClassifier(),
-    cl.MultinomialLogitClassifier(),
-    cl.SmallNNClassifier(),
     cl.SVMClassifier(),
-    cl.RandomForestCls(),
-    cl.GradientBoostingCls(),
-    cl.DecisionTreeCls(),
     cl.KNNClassifier(),
-    cl.TabPfnClassifier(),
 
 ]
 
 DECISIONS = [
     dec.SSL_prob,
+    dec.maximalPPP,
+    dec.SSL_confidence,
 ]
 
 UNLABLED = [
     4,
-    8
+    12
 ]
 
 LABLED = [
-    8,
-    10,
-    20,
-    30,
-    40
+    4,
 ]
 
 Experiments = [
