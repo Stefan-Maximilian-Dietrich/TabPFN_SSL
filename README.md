@@ -211,14 +211,20 @@ Each plot shows performance trends across training iterations.
 
 ---
 
-## Observations
+### Results: Spiral Dataset (K-Nearest Neighbors)
 
-- Performance improves steadily as unlabeled data increases.
-- Smaller α values show more stable convergence in balanced settings.
-- Extremely low labeled regimes exhibit higher variance during early training.
-- The method appears robust across dataset scales.
+For the Spiral dataset using a K-Nearest Neighbors classifier, we observe that in every configuration the supervised baseline is consistently outperformed.
 
-Further statistical evaluation and ablation studies will be added in future updates.
+In particular, the PPP-based selection strategy (`maximalPPP`) computed with TabPFN achieves the best performance across all settings, outperforming both heuristic alternatives (`maximalProb` and `maximalConfidence`).
+
+Several patterns are noteworthy:
+
+- The performance gap between `maximalPPP` and the other decision rules increases as more unlabeled data becomes available.
+- The advantage over the supervised baseline is present in all configurations.
+- In contrast to the heuristic methods, the PPP-based approach does not exhibit a clear saturation effect as additional unlabeled data is incorporated.
+- Accuracy continues to improve steadily as more pseudo-labeled instances are added.
+
+Overall, these results indicate that the theoretically motivated PPP criterion provides a substantial and increasingly pronounced benefit in this nonlinear classification setting.
 
 ---
 # Installation
