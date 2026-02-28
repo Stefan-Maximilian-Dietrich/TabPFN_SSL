@@ -123,9 +123,9 @@ Concretely, after fitting the classifier on the labeled data:
 
 - Predicted class probabilities $p = P(y=1 \mid x)$ are computed.
 - The absolute confidence relative to the decision boundary at 0.5 is calculated as  
-  $$
-  \min(p, 1 - p).
-  $$
+  
+  $$min(p, 1 - p)$$
+  
 - The instance with the smallest value of this quantity is selected.
 
 Since values close to 0 indicate probabilities near 0 or 1, this rule prefers instances for which the classifier is most confident in its prediction (i.e., farthest from the 0.5 boundary).
