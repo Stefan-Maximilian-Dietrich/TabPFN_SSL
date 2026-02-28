@@ -134,13 +134,34 @@ Overall, this comparison allows us to evaluate whether the theoretically motivat
 
 ---
 
-## Experimental Configurations
+## Configurations
 
-We report results across multiple datasets and varying labeled/unlabeled splits:
+Each experiment consists of:
 
-- Cars (low labeled regime)
-- Cassini (balanced semi-supervised setting)
-- Penguins (extreme low-label scenario)
+- a dataset  
+- a fixed number of labeled instances  
+- a fixed number of unlabeled instances  
+- a chosen classifier  
+
+Internally, every experiment is composed of multiple **sub-experiments**, each corresponding to one decision rule (e.g., `maximalPPP`, `maximalProb`, `maximalConfidence`, `supervised`).
+
+To ensure statistical robustness, every sub-experiment is repeated **100 times** using seeds from **0 to 99**.  
+This prevents the reported results from being driven by a particularly favorable or unfavorable random initialization or data split.
+
+The results shown in the plots below correspond to the **mean performance across all 100 repetitions**.
+
+---
+
+### Plot Interpretation
+
+- **x-axis:**  
+  Number of pseudo-labeled instances that have already been added to the training set.  
+  The leftmost point corresponds to **0 pseudo-labels**, i.e., pure supervised learning.
+
+- **y-axis:**  
+  Classification **accuracy**.
+
+Thus, each curve illustrates how model performance evolves as additional pseudo-labeled instances are iteratively incorporated into the training data under the respective decision rule.
 
 Each plot shows performance trends across training iterations.
 
