@@ -134,11 +134,32 @@ Each plot shows performance trends across training iterations.
 </td>
 
 <td align="center">
-<img src="ReadMe_plots/Spirals_L10_U100_classifyer_KNNClassifier.png" width="320"/>
+<img src="ReadMe_plots/Spirals_L10_U60_classifyer_KNNClassifier.png" width="320"/>
 <br>
-<b>Spirals — L=10, U=100 (KNN)</b>
+<b>Spirals — Variant 3 (KNN)</b>
 </td>
 </tr>
+
+<tr>
+<td align="center">
+<img src="ReadMe_plots/Spirals_L10_U20_classifyer_KNNClassifier.png" width="320"/>
+<br>
+<b>Spirals — Variant 4 (KNN)</b>
+</td>
+
+<td align="center">
+<img src="ReadMe_plots/Spirals_L10_U60_classifyer_KNNClassifier.png" width="320"/>
+<br>
+<b>Spirals — Variant 5 (KNN)</b>
+</td>
+
+<td align="center">
+<img src="ReadMe_plots/Spirals_L10_U60_classifyer_KNNClassifier.png" width="320"/>
+<br>
+<b>Spirals — Variant 6 (KNN)</b>
+</td>
+</tr>
+</table>
 
 ---
 
