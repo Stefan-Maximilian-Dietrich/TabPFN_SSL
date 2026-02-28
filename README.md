@@ -122,9 +122,7 @@ The `maximalConfidence` rule selects the pseudo-labeled instance with the **larg
 Concretely, after fitting the classifier on the labeled data:
 
 - Predicted class probabilities $p = P(y=1 \mid x)$ are computed.
-- The absolute confidence relative to the decision boundary at 0.5 is calculated as  
-  
-  $$min(p, 1 - p)$$
+- The absolute confidence relative to the decision boundary at 0.5 is calculated as $min(p, 1 - p)$
   
 - The instance with the smallest value of this quantity is selected.
 
