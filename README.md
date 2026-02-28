@@ -253,7 +253,22 @@ Follow the steps below to set up the project locally:
    ```bash
    uv pip install -e .
    ```
-
+> [!IMPORTANT]
+> If you have not already done so, you must set a **HuggingFace access token** in order to use the TabPFN method.
+>
+> TabPFN downloads pretrained model weights from HuggingFace. Without a valid token, model initialization will fail.
+>
+> A detailed description of how to obtain and configure the token can be found in the official TabPFN repository: https://github.com/PriorLabs/TabPFN
+>
+> In short, you need to:
+>
+> 1. Create a HuggingFace account  
+> 2. Generate an access token  
+> 3. Set it as an environment variable:
+>    ```bash
+>    export HF_TOKEN="your_token_here"      # Linux/macOS
+>    setx HF_TOKEN "your_token_here"        # Windows
+>    ```
 # How to Use
 
 The repository supports both local execution and cluster-based execution (LRZ AI Systems).  
