@@ -159,7 +159,7 @@ The results shown in the plots below correspond to the **mean performance across
   The leftmost point corresponds to **0 pseudo-labels**, i.e., pure supervised learning.
 
 - **y-axis:**  
-  Classification **accuracy**.
+  Classification **accuracy** on unseen data.
 
 Thus, each curve illustrates how model performance evolves as additional pseudo-labeled instances are iteratively incorporated into the training data under the respective decision rule.
 
