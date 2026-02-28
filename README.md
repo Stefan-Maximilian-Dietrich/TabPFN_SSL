@@ -348,7 +348,7 @@ Experiments (and their subexperiments) are executed sequentially in local mode.
 > Reproducing the large-scale experiments presented in the **Results** section requires access to a high-performance GPU.  
 > Due to the pseudo-posterior predictive evaluation for each instances in each round, the computational complexity scales approximately quadratically (O(n²)) with the number of unlabeled instances.  
 >  
-> For a lightweight check of the pipeline, please use `toy_examples.py`.
+> For a lightweight check of the pipeline, please use `toy_examples.py` witch `NUM_SEEDS < 10`
 ---
 
 ## Cluster Execution (LRZ AI Systems via SLURM)
