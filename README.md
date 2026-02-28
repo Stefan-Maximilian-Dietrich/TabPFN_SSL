@@ -99,11 +99,40 @@ The computational efficiency demonstrated in [Hollmann et al., 2023](https://arx
 
 # Results
 
-This section presents preliminary experimental results of the proposed method.  
-The figures below illustrate training dynamics under different dataset configurations and hyperparameter settings.
+This chapter presents first empirical results of the method proposed above.  
+The approach uses the **Pseudo Posterior Predictive (PPP)** as decision criterion witch are computed using **TabPFN**.  
 
-> ⚠️ Note: The results shown here are placeholders and serve illustrative purposes only.  
-> Final experimental evaluations will be added after full benchmarking.
+In the plots, this method is referred to as **`maximalPPP`** and is displayed in **orange**.
+
+As a reference baseline, standard supervised learning without the addition of pseudo-labels is included. This baseline is denoted as **`supervised`**, shown in **red**, and represents regular supervised training using only the labeled data.
+
+In addition, two ad-hoc decision criteria are included for comparison:
+
+### 1) `maximalProb`
+
+This strategy selects the pseudo-labeled instance whose *predicted class probability* (for the predicted class) is maximal.  
+Formally, after fitting the classifier on the labeled data, all pseudo instances are evaluated and the instance with the highest predicted probability is selected.
+
+This corresponds to a purely probability-driven heuristic without explicitly considering uncertainty around the decision boundary.
+
+### 2) `maximalConfidence`
+
+The `maximalConfidence` rule selects the pseudo-labeled instance with the **largest distance from the decision boundary**.
+
+Concretely, after fitting the classifier on the labeled data:
+
+- Predicted class probabilities \( p = P(y=1 \mid x) \) are computed.
+- The absolute confidence relative to the decision boundary at 0.5 is calculated as  
+  \[
+  \min(p, 1 - p).
+  \]
+- The instance with the smallest value of this quantity is selected.
+
+Since values close to 0 indicate probabilities near 0 or 1, this rule prefers instances for which the classifier is most confident in its prediction (i.e., farthest from the 0.5 boundary).
+
+---
+
+Overall, this comparison allows us to evaluate whether the theoretically motivated **PPP-based selection (`maximalPPP`)** provides advantages over simpler heuristic confidence-based strategies.
 
 ---
 
