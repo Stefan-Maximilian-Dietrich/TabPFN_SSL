@@ -527,8 +527,8 @@ DATA --> T
 %% TASK PARAMETERS
 %% =====================================
 
-TK1((k))
-TK2((m))
+TK1((labeled))
+TK2((unlabeled))
 
 TK1 --> T
 TK2 --> T
@@ -538,10 +538,10 @@ TK2 --> T
 %% SSL BLOCK
 %% =====================================
 
-subgraph SSL Pipeline
+subgraph run_interactive.py
     SSL["<br/>SSL Engine<br/>"]
-    S1((α))
-    S2((β))
+    S1((Base))
+    S2((Number))
 
     S1 --> SSL
     S2 --> SSL
@@ -554,7 +554,7 @@ T --> SSL
 %% RESULTS BLOCK
 %% =====================================
 
-subgraph Result Layer
+subgraph evaluate_interactive.py
     G[Graphic Results]
     TAB[Tabular Results]
 end
