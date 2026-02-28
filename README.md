@@ -266,7 +266,7 @@ Follow the steps below to set up the project locally:
 > 2. Generate an access token  
 > 3. Set it as an environment variable:
 >    ```bash
->    export HF_TOKEN="your_token_here"      # Linux/macOS
+>    export HF_TOKEN="your_token_here"      # Linux/macOS 
 >    setx HF_TOKEN "your_token_here"        # Windows
 >    ```
 # How to Use
